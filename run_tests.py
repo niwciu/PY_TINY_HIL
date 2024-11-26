@@ -5,7 +5,7 @@ from core.test_framework import TestFramework, TestGroup
 from core.logger import Logger
 from core.peripheral_manager import PeripheralManager
 from core.protocols import ModbusTRU
-from core.RPiPeripherals import RPiGPIO
+from core.RPiPeripherals import RPiGPIO, RPiPWM, RPiUART, RPiI2C, RPiSPI
 import RPi.GPIO as GPIO
 
 def load_test_groups(test_directory):
@@ -27,6 +27,11 @@ def main():
     if len(sys.argv) > 2 and sys.argv[1] == '--log':
         logger.log_file = sys.argv[2]
 
+    pwm = RPiPWM(pin=12, frequency=1000)  # Konfiguracja PWM na GPIO12
+    uart = RPiUART(port='/dev/serial0', baudrate=9600)  # Konfiguracja UART
+    i2c = RPiI2C(bus=1)  # Konfiguracja magistrali I2C
+    spi = RPiSPI(bus=0, device=0)  # Konfiguracja magistrali SPI
+
     # Setup devices including GPIO
     gpio = RPiGPIO({
         17: {'mode': GPIO.OUT, 'initial': GPIO.LOW},
@@ -35,7 +40,7 @@ def main():
 
     devices = {
         "protocols": [ModbusTRU()],
-        "peripherals": [gpio]
+        "peripherals": [gpio, pwm, uart, i2c, spi]
     }
     peripheral_manager = PeripheralManager(devices, logger)
 
