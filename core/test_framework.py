@@ -26,14 +26,19 @@ class TestFramework:
         self.test_groups.append(group)
 
     def run_all_tests(self):
-        self.logger.log("\n=================== INITIALIZATION ===================", to_console=True)
+        log_line=("\n=================== INITIALIZATION ===================")
+        self.logger.log(log_line, to_console=True)
         self.peripheral_manager.initialize_all()
 
-        self.logger.log("\n=================== TEST EXECUTION ===================\n", to_console=True)
+        log_line="\n=================== TEST EXECUTION ===================\n"
+        self.logger.log(log_line, to_console=True)
+        if hasattr(self.logger, "log_file") and self.logger.log_file:
+            self.logger.log(log_line, to_console=False, to_log_file = True)
         for group in self.test_groups:
             group.run_tests(self)
 
-        self.logger.log("\n==================== RESOURCE CLEANUP ====================", to_console=True)
+        log_line="\n==================== RESOURCE CLEANUP ===================="
+        self.logger.log(log_line, to_console=True)
         self.peripheral_manager.release_all()
 
         self.print_summary()
@@ -61,7 +66,7 @@ class TestFramework:
 
         # Opcjonalnie zapis do pliku (jeśli logger ma ustawiony log_file)
         if hasattr(self.logger, "log_file") and self.logger.log_file:
-            self.logger.log(summary, to_console=False)
+            self.logger.log(summary, to_console=False, to_log_file = True)
 
     def report_test_result(self, group_name, test_name, passed, details=None):
         self.total_tests += 1
@@ -75,7 +80,7 @@ class TestFramework:
                 message += f" {details}"
         self.logger.log(message, to_console=True)
         if self.logger.log_file:
-            self.logger.log(message, to_console=False)
+            self.logger.log(message, to_console=False, to_log_file=True)
 
 class TestGroup:
     def __init__(self, name):

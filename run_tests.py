@@ -64,7 +64,7 @@ def main():
         test_framework.run_all_tests()
     except SystemExit as e:
         # If tests fail or are stopped
-        logger.log(f"[WARNING] Test execution stopped with exit code {e.code}.")
+        logger.log(f"[INFO] Test execution stopped with exit code {e.code}.")
         sys.exit(e.code)
 
 if __name__ == "__main__":
