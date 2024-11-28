@@ -20,15 +20,7 @@ def load_test_groups(test_directory):
                     test_groups.append(attr)
     return test_groups
 
-def main():
-    # Setup logger
-    logger = Logger()
-
-    if len(sys.argv) > 2 and sys.argv[1] == '--log':
-        logger.log_file = sys.argv[2]
-
-    # Create PeripheralManager instance
-    peripheral_manager = PeripheralManager(devices={}, logger=logger)
+def set_peripheral_configuration():
 
     # Define peripherals and protocols
     pwm = RPiPWM(pin=12, frequency=1000)  # PWM na GPIO12
@@ -47,8 +39,18 @@ def main():
         "protocols": [ModbusTRU()],
         "peripherals": [gpio, pwm, uart, i2c, spi]
     }
-    peripheral_manager.devices = devices
+    return devices
 
+def main():
+    # Setup logger
+    logger = Logger()
+
+    if len(sys.argv) > 2 and sys.argv[1] == '--log':
+        logger.log_file = sys.argv[2]
+    
+    # Create PeripheralManager instance
+    peripheral_manager = PeripheralManager(devices={}, logger=logger)
+    peripheral_manager.devices = set_peripheral_configuration()
     # Create TestFramework instance
     test_framework = TestFramework(peripheral_manager, logger)
 
