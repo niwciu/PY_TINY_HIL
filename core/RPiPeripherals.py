@@ -207,3 +207,172 @@ class RPiSPI:
         Zamyka połączenie SPI.
         """
         self.spi.close()
+class RPi1Wire:
+    def __init__(self, pin):
+        """
+        Klasa do obsługi magistrali 1-Wire.
+        :param pin: Numer pinu GPIO używanego do komunikacji 1-Wire.
+        """
+        self.pin = pin
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów, które urządzenie chce zarezerwować.
+        """
+        return [self.pin]
+
+    def initialize(self):
+        """
+        Inicjalizuje magistralę 1-Wire.
+        """
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin, GPIO.IN)
+        # Dalsza konfiguracja 1-Wire może być dodana w zależności od potrzeb.
+
+    def release(self):
+        """
+        Zwalnia pin używany przez 1-Wire.
+        """
+        GPIO.cleanup(self.pin)
+
+
+class RPiADC:
+    def __init__(self, channel):
+        """
+        Klasa do obsługi ADC.
+        :param channel: Kanał ADC (zależny od konfiguracji sprzętowej).
+        """
+        self.channel = channel
+        self.spi = spidev.SpiDev()
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów wymaganych przez ADC (zależne od kanału SPI).
+        """
+        return [7, 8, 9, 10, 11]  # Standardowe piny SPI
+
+    def initialize(self):
+        """
+        Inicjalizuje ADC.
+        """
+        self.spi.open(0, self.channel)
+        self.spi.max_speed_hz = 1350000  # Konfiguracja SPI
+
+    def read(self):
+        """
+        Czyta wartość z ADC.
+        :return: Odczytana wartość.
+        """
+        adc = self.spi.xfer2([1, (8 + self.channel) << 4, 0])
+        data = ((adc[1] & 3) << 8) + adc[2]
+        return data
+
+    def release(self):
+        """
+        Zamyka SPI używane przez ADC.
+        """
+        self.spi.close()
+
+
+class RPiCAN:
+    def __init__(self, interface='can0'):
+        """
+        Klasa do obsługi magistrali CAN.
+        :param interface: Nazwa interfejsu CAN (np. 'can0').
+        """
+        self.interface = interface
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów używanych przez CAN (jeśli wymagane przez sprzęt).
+        """
+        return []  # CAN zwykle nie używa GPIO, ale zależy od sprzętu.
+
+    def initialize(self):
+        """
+        Inicjalizuje magistralę CAN.
+        """
+        # Przykładowa konfiguracja CAN za pomocą systemu
+        import os
+        os.system(f'sudo ip link set {self.interface} up type can bitrate 500000')
+
+    def release(self):
+        """
+        Wyłącza magistralę CAN.
+        """
+        import os
+        os.system(f'sudo ip link set {self.interface} down')
+
+
+class RPiHATEEPROM:
+    def __init__(self, bus=1, address=0x50):
+        """
+        Klasa do obsługi EEPROM na HAT.
+        :param bus: Magistrala I2C.
+        :param address: Adres urządzenia EEPROM.
+        """
+        self.bus_number = bus
+        self.address = address
+        self.bus = None
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów używanych przez HAT EEPROM.
+        """
+        return [2, 3]  # SDA i SCL
+
+    def initialize(self):
+        """
+        Inicjalizuje EEPROM na magistrali I2C.
+        """
+        self.bus = SMBus(self.bus_number)
+
+    def read_eeprom(self, offset, length):
+        """
+        Czyta dane z EEPROM.
+        :param offset: Offset początkowy.
+        :param length: Liczba bajtów do odczytania.
+        :return: Odczytane dane.
+        """
+        data = []
+        for i in range(length):
+            data.append(self.bus.read_byte_data(self.address, offset + i))
+        return data
+
+    def release(self):
+        """
+        Zamyka magistralę I2C używaną przez EEPROM.
+        """
+        if self.bus:
+            self.bus.close()
+
+
+class RPiHardwarePWM:
+    def __init__(self, pin, frequency=1000):
+        """
+        Klasa do obsługi sprzętowego PWM.
+        :param pin: Numer pinu GPIO.
+        :param frequency: Częstotliwość PWM w Hz.
+        """
+        self.pin = pin
+        self.frequency = frequency
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów, które urządzenie chce zarezerwować.
+        """
+        return [self.pin]
+
+    def initialize(self):
+        """
+        Inicjalizuje sprzętowe PWM na pinie.
+        """
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin, GPIO.OUT)
+        # Użycie sprzętowego PWM zależne od konkretnego sterownika lub API.
+
+    def release(self):
+        """
+        Zwalnia pin używany przez sprzętowe PWM.
+        """
+        GPIO.cleanup(self.pin)
