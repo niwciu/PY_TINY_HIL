@@ -323,88 +323,70 @@ class RPiSPI:
 
 
 # Nowe klasy peryferiów
-class RPi1Wire:
-    def __init__(self, pin):
-        self.pin = pin
+# class RPi1Wire:
+#     def __init__(self, pin):
+#         self.pin = pin
 
-    def get_required_resources(self):
-        return {"pins": [self.pin]}
+#     def get_required_resources(self):
+#         return {"pins": [self.pin]}
 
-    def initialize(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.pin, GPIO.IN)
+#     def initialize(self):
+#         GPIO.setmode(GPIO.BCM)
+#         GPIO.setup(self.pin, GPIO.IN)
 
-    def release(self):
-        GPIO.cleanup(self.pin)
-
-
-class RPiADC:
-    def __init__(self, channel):
-        self.channel = channel
-        self.spi = spidev.SpiDev()
-
-    def get_required_resources(self):
-        return {"pins": [7, 8, 9, 10, 11]}  # Standardowe piny SPI
-
-    def initialize(self):
-        self.spi.open(0, self.channel)
-        self.spi.max_speed_hz = 1350000
-
-    def read(self):
-        adc = self.spi.xfer2([1, (8 + self.channel) << 4, 0])
-        return ((adc[1] & 3) << 8) + adc[2]
-
-    def release(self):
-        self.spi.close()
+#     def release(self):
+#         GPIO.cleanup(self.pin)
 
 
-class RPiCAN:
-    def __init__(self, interface='can0'):
-        self.interface = interface
+# class RPiADC:
+#     def __init__(self, channel):
+#         self.channel = channel
+#         self.spi = spidev.SpiDev()
 
-    def get_required_resources(self):
-        return {"pins": []}  # CAN zwykle nie używa GPIO
+#     def get_required_resources(self):
+#         return {"pins": [7, 8, 9, 10, 11]}  # Standardowe piny SPI
 
-    def initialize(self):
-        import os
-        os.system(f'sudo ip link set {self.interface} up type can bitrate 500000')
+#     def initialize(self):
+#         self.spi.open(0, self.channel)
+#         self.spi.max_speed_hz = 1350000
 
-    def release(self):
-        import os
-        os.system(f'sudo ip link set {self.interface} down')
+#     def read(self):
+#         adc = self.spi.xfer2([1, (8 + self.channel) << 4, 0])
+#         return ((adc[1] & 3) << 8) + adc[2]
 
-
-class RPiHATEEPROM:
-    def __init__(self, bus=1, address=0x50):
-        self.bus_number = bus
-        self.address = address
-        self.bus = None
-
-    def get_required_resources(self):
-        return {"pins": [2, 3]}  # SDA i SCL
-
-    def initialize(self):
-        self.bus = SMBus(self.bus_number)
-
-    def read_eeprom(self, offset, length):
-        return [self.bus.read_byte_data(self.address, offset + i) for i in range(length)]
-
-    def release(self):
-        if self.bus:
-            self.bus.close()
+#     def release(self):
+#         self.spi.close()
 
 
-class RPiHardwarePWM:
-    def __init__(self, pin, frequency=1000):
-        self.pin = pin
-        self.frequency = frequency
+# class RPiCAN:
+#     def __init__(self, interface='can0'):
+#         self.interface = interface
 
-    def get_required_resources(self):
-        return {"pins": [self.pin]}
+#     def get_required_resources(self):
+#         return {"pins": []}  # CAN zwykle nie używa GPIO
 
-    def initialize(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.pin, GPIO.OUT)
+#     def initialize(self):
+#         import os
+#         os.system(f'sudo ip link set {self.interface} up type can bitrate 500000')
 
-    def release(self):
-        GPIO.cleanup(self.pin)
+#     def release(self):
+#         import os
+#         os.system(f'sudo ip link set {self.interface} down')
+
+
+
+
+# class RPiHardwarePWM:
+#     def __init__(self, pin, frequency=1000):
+#         self.pin = pin
+#         self.frequency = frequency
+
+#     def get_required_resources(self):
+#         return {"pins": [self.pin]}
+
+#     def initialize(self):
+#         GPIO.setmode(GPIO.BCM)
+#         GPIO.setup(self.pin, GPIO.OUT)
+
+#     def release(self):
+#         GPIO.cleanup(self.pin)
