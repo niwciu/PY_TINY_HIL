@@ -36,7 +36,7 @@ def set_peripheral_configuration():
 
     # Add devices to the manager
     devices = {
-        "protocols": [ModbusTRU(port='/dev/serial0')],
+        "protocols": [ModbusTRU(port='/dev/ttyUSB0')],
         "peripherals": [gpio, pwm, uart, i2c, spi]
     }
     return devices

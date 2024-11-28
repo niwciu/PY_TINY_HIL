@@ -3,9 +3,6 @@ from abc import ABC, abstractmethod
 
 
 class Protocol(ABC):
-    """
-    Interfejs dla protokołów komunikacyjnych.
-    """
     @abstractmethod
     def initialize(self):
         pass
@@ -16,17 +13,14 @@ class Protocol(ABC):
 
 
 class ModbusTRU(Protocol):
-    """
-    Klasa obsługująca protokół Modbus RTU.
-    """
     def __init__(self, port='/dev/ttyUSB0', baudrate=115200, stopbits=1, parity='N', timeout=1):
         """
-        Inicjalizuje parametry komunikacji Modbus RTU.
-        :param port: Port szeregowy (np. '/dev/ttyUSB0').
-        :param baudrate: Prędkość transmisji w bitach na sekundę.
-        :param stopbits: Ilość bitów stopu (1 lub 2).
-        :param parity: Parzystość ('N' - brak, 'E' - parzysta, 'O' - nieparzysta).
-        :param timeout: Timeout w sekundach.
+        Klasa do obsługi Modbus RTU.
+        :param port: Port szeregowy do komunikacji.
+        :param baudrate: Szybkość transmisji w baudach.
+        :param stopbits: Liczba bitów stopu.
+        :param parity: Parzystość ('N', 'E', 'O').
+        :param timeout: Czas oczekiwania na odpowiedź w sekundach.
         """
         self.port = port
         self.baudrate = baudrate
@@ -35,12 +29,11 @@ class ModbusTRU(Protocol):
         self.timeout = timeout
         self.client = None
 
-    def get_reserved_pins(self):
+    def get_required_resources(self):
         """
-        Zwraca listę pinów, które urządzenie chce zarezerwować.
-        W przypadku Modbus nie rezerwuje żadnych pinów, więc zwraca pustą listę.
+        Zwraca zasoby wymagane przez Modbus RTU (port szeregowy).
         """
-        return []
+        return {"ports": [self.port]}
 
     def initialize(self):
         """
@@ -65,10 +58,10 @@ class ModbusTRU(Protocol):
 
     def read_holding_registers(self, slave_address, address, count):
         """
-        Odczytuje rejestry "holding" z urządzenia Modbus.
-        :param slave_address: Adres urządzenia Modbus.
-        :param address: Początkowy adres rejestru.
-        :param count: Liczba rejestrów do odczytu.
+        Odczytuje rejestry holding z urządzenia Modbus RTU.
+        :param slave_address: Adres urządzenia slave.
+        :param address: Adres początkowego rejestru.
+        :param count: Liczba rejestrów do odczytania.
         :return: Lista wartości rejestrów.
         """
         response = self.client.read_holding_registers(address, count, slave=slave_address)
@@ -78,11 +71,11 @@ class ModbusTRU(Protocol):
 
     def write_single_register(self, slave_address, address, value):
         """
-        Zapisuje wartość do pojedynczego rejestru urządzenia Modbus.
-        :param slave_address: Adres urządzenia Modbus.
+        Zapisuje pojedynczy rejestr w urządzeniu Modbus RTU.
+        :param slave_address: Adres urządzenia slave.
         :param address: Adres rejestru.
         :param value: Wartość do zapisania.
-        :return: Wynik operacji.
+        :return: Odpowiedź z urządzenia.
         """
         response = self.client.write_register(address, value, slave=slave_address)
         if response.isError():
@@ -91,11 +84,11 @@ class ModbusTRU(Protocol):
 
     def write_multiple_registers(self, slave_address, address, values):
         """
-        Zapisuje wartości do wielu rejestrów urządzenia Modbus.
-        :param slave_address: Adres urządzenia Modbus.
-        :param address: Początkowy adres rejestru.
+        Zapisuje wiele rejestrów w urządzeniu Modbus RTU.
+        :param slave_address: Adres urządzenia slave.
+        :param address: Adres początkowego rejestru.
         :param values: Lista wartości do zapisania.
-        :return: Wynik operacji.
+        :return: Odpowiedź z urządzenia.
         """
         response = self.client.write_registers(address, values, slave=slave_address)
         if response.isError():
