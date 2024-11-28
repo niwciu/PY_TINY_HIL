@@ -1,12 +1,14 @@
 from core.test_group_factory import create_test_group
 from .modbus_communication_tests import modbus_read_test
+from core.logger import Logger
 
 # Funkcje setup i teardown specyficzne dla grupy
 def setup_group():
-    print("Setting up Modbus Communication Tests")
+    print()
 
 def teardown_group():
-    print("Tearing down Modbus Communication Tests")
+    print()
+
 
 # Definicja testów
 tests = [
