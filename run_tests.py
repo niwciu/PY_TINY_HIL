@@ -54,8 +54,13 @@ def main():
     for group in test_groups:
         test_framework.add_test_group(group)
 
-    # Run all tests
-    test_framework.run_all_tests()
+    try:
+        # Run all tests (TestFramework should handle initialization itself)
+        test_framework.run_all_tests()
+    except SystemExit as e:
+        # If resource is occupied or initialization fails, tests are stopped
+        print(f"Test execution stopped with exit code {e.code}.")
+        sys.exit(e.code)  # Exit program with error code 1
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 # test_framework.py
 from core.logger import Logger
-# from core.core import Peripheral
 from abc import ABC, abstractmethod
+import sys 
 
 
 class Peripheral(ABC):
@@ -37,6 +37,9 @@ class TestFramework:
         self.peripheral_manager.release_all()
 
         self.print_summary()
+
+        if (self.fail_count !=0):
+            sys.exit(1)
 
     def print_summary(self):
         total = self.total_tests
