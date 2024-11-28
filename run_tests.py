@@ -6,7 +6,9 @@ from core.logger import Logger
 from core.peripheral_manager import PeripheralManager
 from core.protocols import ModbusTRU
 from core.RPiPeripherals import RPiGPIO, RPiPWM, RPiUART, RPiI2C, RPiSPI
+from core.peripheral_config_loader import load_peripheral_configuration
 import RPi.GPIO as GPIO
+
 
 def load_test_groups(test_directory):
     test_groups = []
@@ -20,26 +22,26 @@ def load_test_groups(test_directory):
                     test_groups.append(attr)
     return test_groups
 
-def set_peripheral_configuration():
+# def set_peripheral_configuration():
 
-    # Define peripherals and protocols
-    pwm = RPiPWM(pin=12, frequency=1000)  # PWM na GPIO12
-    uart = RPiUART(port='/dev/serial0', baudrate=9600)  # UART
-    i2c = RPiI2C(bus=1)  # I2C
-    spi = RPiSPI(bus=0, device=0)  # SPI
+#     # Define peripherals and protocols
+#     pwm = RPiPWM(pin=12, frequency=1000)  # PWM na GPIO12
+#     uart = RPiUART(port='/dev/serial0', baudrate=9600)  # UART
+#     i2c = RPiI2C(bus=1)  # I2C
+#     spi = RPiSPI(bus=0, device=0)  # SPI
 
     # GPIO configuration
-    gpio = RPiGPIO({
-        17: {'mode': GPIO.OUT, 'initial': GPIO.LOW},
-        18: {'mode': GPIO.IN}
-    })
+    # gpio = RPiGPIO({
+    #     17: {'mode': GPIO.OUT, 'initial': GPIO.LOW},
+    #     18: {'mode': GPIO.IN}
+    # })
 
-    # Add devices to the manager
-    devices = {
-        "protocols": [ModbusTRU(port='/dev/ttyUSB0')],
-        "peripherals": [gpio, pwm, uart, i2c, spi]
-    }
-    return devices
+#     # Add devices to the manager
+#     devices = {
+#         "protocols": [ModbusTRU(port='/dev/ttyUSB0')],
+#         "peripherals": [gpio, pwm, uart, i2c, spi]
+#     }
+#     return devices
 
 def main():
     # Setup logger
@@ -50,7 +52,8 @@ def main():
     
     # Create PeripheralManager instance
     peripheral_manager = PeripheralManager(devices={}, logger=logger)
-    peripheral_manager.devices = set_peripheral_configuration()
+    peripheral_manager.devices = load_peripheral_configuration()
+    print(peripheral_manager.devices)
     # Create TestFramework instance
     test_framework = TestFramework(peripheral_manager, logger)
 

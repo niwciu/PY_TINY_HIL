@@ -134,8 +134,11 @@ class PeripheralManager:
         for pin in resources.get("pins", []):
             self.logger.log(f"[INFO] Pin {pin} successfully initialized by {device.__class__.__name__}.", to_console=True)
         for port in resources.get("ports", []):
-            device_param=device.get_initialized_params()
-            self.logger.log(f"[INFO] Port {port} with baudrate: {device_param['baudrate']}, parity: {device_param['parity']}, stop bits: {device_param['stopbits']}, timeout:{device_param['timeout']} was successfully initialized by {device.__class__.__name__}.", to_console=True)
+            device_param = device.get_initialized_params()
+            # Tworzymy dynamiczny log dla portu
+            params_str = ', '.join([f"{key}: {value}" for key, value in device_param.items()])
+            
+            self.logger.log(f"[INFO] {device.__class__.__name__} successfully open {params_str} ", to_console=True)
 
     def get_device(self, group, name):
         """
