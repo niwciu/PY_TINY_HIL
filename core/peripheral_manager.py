@@ -51,7 +51,7 @@ class PeripheralManager:
                     self._reserve_ports(ports, device.__class__.__name__)
 
                     device.initialize()
-                    self._log_resources_initialized(resources, device.__class__.__name__)
+                    self._log_resources_initialized(resources, device)
                     self.initialized_devices.append(device)
 
                     self.logger.log(f"[INFO] {device.__class__.__name__} initialized successfully.", to_console=True)
@@ -106,7 +106,11 @@ class PeripheralManager:
                 conflicting_device = self.port_registry[port]
                 self._log_conflict(port, device_name, conflicting_device, resource_type="Port")
             self.port_registry[port] = device_name
-            self.logger.log(f"[INFO] Port {port} reserved for {device_name}.", to_console=True)
+
+            # Logowanie parametrów portu przy rezerwacji
+            if isinstance(port, str):  # Jeżeli jest to port, np. /dev/ttyUSB0
+                self.logger.log(f"[INFO] Port {port} reserved for {device_name}.", to_console=True)
+
 
     def _log_conflict(self, resource, current_device, conflicting_device, resource_type):
         """
@@ -121,16 +125,17 @@ class PeripheralManager:
         self.logger.log(message, to_console=True)
         raise RuntimeError(message)
 
-    def _log_resources_initialized(self, resources, device_name):
+    def _log_resources_initialized(self, resources, device):
         """
         Loguje pomyślne zainicjalizowanie zasobów.
         :param resources: Słownik z zasobami.
         :param device_name: Nazwa urządzenia inicjalizującego zasoby.
         """
         for pin in resources.get("pins", []):
-            self.logger.log(f"[INFO] Pin {pin} successfully initialized by {device_name}.", to_console=True)
+            self.logger.log(f"[INFO] Pin {pin} successfully initialized by {device.__class__.__name__}.", to_console=True)
         for port in resources.get("ports", []):
-            self.logger.log(f"[INFO] Port {port} successfully initialized by {device_name}.", to_console=True)
+            device_param=device.get_initialized_params()
+            self.logger.log(f"[INFO] Port {port} with baudrate: {device_param['baudrate']}, parity: {device_param['parity']}, stop bits: {device_param['stopbits']}, timeout:{device_param['timeout']} was successfully initialized by {device.__class__.__name__}.", to_console=True)
 
     def get_device(self, group, name):
         """

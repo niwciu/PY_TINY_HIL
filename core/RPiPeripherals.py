@@ -117,6 +117,18 @@ class RPiUART:
         """
         if self.serial:
             self.serial.close()
+            
+    def get_initialized_params(self):
+        """
+        Zwraca parametry, z którymi zostały zainicjalizowane porty Modbus TRU.
+        """
+        return {
+            "port": self.port,
+            "baudrate": self.baudrate,
+            "stopbits": self.stopbits,
+            "parity": self.parity,
+            "timeout": self.timeout
+        }
 
 
 class RPiI2C:
