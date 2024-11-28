@@ -1,69 +1,58 @@
 import RPi.GPIO as GPIO
-import serial
-import smbus2
-import spidev
 from smbus2 import SMBus
+import spidev
+import serial
 
 
 class RPiGPIO:
     def __init__(self, pin_config):
         """
-        Inicjalizuje wiele pinów GPIO.
+        Klasa do obsługi GPIO.
         :param pin_config: Słownik w formacie {pin: {'mode': GPIO.OUT, 'initial': GPIO.LOW}}
         """
         self.pin_config = pin_config
 
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów, które urządzenie chce zarezerwować.
+        """
+        return list(self.pin_config.keys())
+
     def initialize(self):
         """
-        Inicjalizuje wszystkie piny GPIO.
+        Inicjalizuje piny GPIO.
         """
-        GPIO.setmode(GPIO.BCM)  # Ustaw tryb numeracji pinów
+        GPIO.setmode(GPIO.BCM)
         for pin, config in self.pin_config.items():
             if config['mode'] == GPIO.OUT:
                 GPIO.setup(pin, config['mode'], initial=config.get('initial', GPIO.LOW))
             else:
                 GPIO.setup(pin, config['mode'])
-            print(f"Initialized GPIO pin {pin} as {'OUTPUT' if config['mode'] == GPIO.OUT else 'INPUT'}.")
-
-    def write(self, pin, value):
-        """
-        Ustawia stan konkretnego pinu GPIO.
-        :param pin: Numer pinu GPIO.
-        :param value: GPIO.HIGH lub GPIO.LOW.
-        """
-        if self.pin_config[pin]['mode'] != GPIO.OUT:
-            raise RuntimeError(f"Cannot write to pin {pin}. It must be set as OUTPUT.")
-        GPIO.output(pin, value)
-
-    def read(self, pin):
-        """
-        Odczytuje stan konkretnego pinu GPIO.
-        :param pin: Numer pinu GPIO.
-        :return: GPIO.HIGH lub GPIO.LOW.
-        """
-        if self.pin_config[pin]['mode'] != GPIO.IN:
-            raise RuntimeError(f"Cannot read from pin {pin}. It must be set as INPUT.")
-        return GPIO.input(pin)
 
     def release(self):
         """
-        Zwolnij wszystkie zasoby GPIO.
+        Zwalnia zarezerwowane piny GPIO.
         """
-        GPIO.setmode(GPIO.BCM)  # Ustaw tryb numeracji pinów przed cleanup
         for pin in self.pin_config.keys():
             GPIO.cleanup(pin)
-            print(f"Released GPIO pin {pin}.")
+
 
 class RPiPWM:
     def __init__(self, pin, frequency=1000):
         """
-        Inicjalizuje PWM na określonym pinie.
+        Klasa do obsługi PWM.
         :param pin: Numer pinu GPIO.
         :param frequency: Częstotliwość PWM w Hz.
         """
         self.pin = pin
         self.frequency = frequency
         self.pwm = None
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów, które urządzenie chce zarezerwować.
+        """
+        return [self.pin]
 
     def initialize(self):
         """
@@ -72,52 +61,60 @@ class RPiPWM:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, self.frequency)
-        self.pwm.start(0)  # Rozpoczyna PWM z wypełnieniem 0%.
-        print(f"Initialized PWM on pin {self.pin} with frequency {self.frequency}Hz.")
+        self.pwm.start(0)
 
     def set_duty_cycle(self, duty_cycle):
         """
-        Ustawia wypełnienie sygnału PWM.
+        Ustawia wypełnienie PWM.
         :param duty_cycle: Wypełnienie w procentach (0-100).
         """
         if self.pwm:
             self.pwm.ChangeDutyCycle(duty_cycle)
 
-    def stop(self):
+    def release(self):
         """
-        Zatrzymuje PWM.
+        Zatrzymuje PWM i zwalnia pin.
         """
         if self.pwm:
             self.pwm.stop()
-
-    def release(self):
-        """
-        Zwolnij zasoby PWM.
-        """
-        self.stop()
         GPIO.cleanup(self.pin)
-        print(f"Released PWM on pin {self.pin}.")
 
 
 class RPiUART:
-    def __init__(self, port='/dev/serial0', baudrate=9600, timeout=1):
+    def __init__(self, port='/dev/serial0', baudrate=9600, timeout=1, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE):
         """
-        Inicjalizuje UART.
+        Klasa do obsługi UART.
         :param port: Port UART (domyślnie '/dev/serial0').
         :param baudrate: Prędkość transmisji w baudach.
         :param timeout: Timeout transmisji w sekundach.
+        :param parity: Parzystość ('serial.PARITY_NONE', 'serial.PARITY_ODD', 'serial.PARITY_EVEN').
+        :param stopbits: Liczba bitów stopu ('serial.STOPBITS_ONE', 'serial.STOPBITS_TWO').
         """
         self.port = port
         self.baudrate = baudrate
         self.timeout = timeout
+        self.parity = parity
+        self.stopbits = stopbits
+        self.reserved_pins = [14, 15]  # Standardowe piny TXD i RXD
         self.serial = None
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów, które urządzenie chce zarezerwować.
+        """
+        return self.reserved_pins
 
     def initialize(self):
         """
         Inicjalizuje port UART.
         """
-        self.serial = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
-        print(f"Initialized UART on port {self.port} with baudrate {self.baudrate}.")
+        self.serial = serial.Serial(
+            port=self.port,
+            baudrate=self.baudrate,
+            timeout=self.timeout,
+            parity=self.parity,
+            stopbits=self.stopbits
+        )
 
     def send(self, data):
         """
@@ -137,77 +134,69 @@ class RPiUART:
 
     def release(self):
         """
-        Zamykamy port UART.
+        Zamyka port UART.
         """
         if self.serial:
             self.serial.close()
-        print(f"Released UART on port {self.port}.")
 
 
 class RPiI2C:
     def __init__(self, bus=1):
         """
-        Inicjalizuje magistralę I2C.
+        Klasa do obsługi magistrali I2C.
         :param bus: Numer magistrali I2C (domyślnie 1).
         """
         self.bus_number = bus
+        self.reserved_pins = [2, 3]  # SDA i SCL dla I2C
         self.bus = None
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów, które urządzenie chce zarezerwować.
+        """
+        return self.reserved_pins
 
     def initialize(self):
         """
-        Otwiera magistralę I2C.
+        Inicjalizuje magistralę I2C.
         """
         self.bus = SMBus(self.bus_number)
-        print(f"Initialized I2C bus {self.bus_number}.")
-
-    def write_byte(self, address, value):
-        """
-        Wysyła pojedynczy bajt przez I2C.
-        :param address: Adres urządzenia I2C.
-        :param value: Bajt do wysłania.
-        """
-        if self.bus:
-            self.bus.write_byte(address, value)
-
-    def read_byte(self, address):
-        """
-        Odczytuje pojedynczy bajt przez I2C.
-        :param address: Adres urządzenia I2C.
-        :return: Odebrany bajt.
-        """
-        if self.bus:
-            return self.bus.read_byte(address)
 
     def release(self):
         """
-        Zamykamy magistralę I2C.
+        Zamyka magistralę I2C.
         """
         if self.bus:
             self.bus.close()
-            print(f"Released I2C bus {self.bus_number}.")
 
 
 class RPiSPI:
     def __init__(self, bus=0, device=0):
         """
-        Inicjalizuje magistralę SPI.
+        Klasa do obsługi magistrali SPI.
         :param bus: Numer magistrali SPI (domyślnie 0).
         :param device: Numer urządzenia SPI (domyślnie 0).
         """
         self.spi = spidev.SpiDev()
         self.bus = bus
         self.device = device
+        self.reserved_pins = [7, 8, 9, 10, 11]  # CE0, CE1, MISO, MOSI, SCLK
+
+    def get_reserved_pins(self):
+        """
+        Zwraca listę pinów, które urządzenie chce zarezerwować.
+        """
+        return self.reserved_pins
 
     def initialize(self):
         """
         Otwiera połączenie SPI.
         """
         self.spi.open(self.bus, self.device)
-        print(f"Initialized SPI on bus {self.bus}, device {self.device}.")
 
     def transfer(self, data):
         """
-        Wysyła i odbiera dane przez SPI.
+        Przesyła dane przez SPI.
         :param data: Dane do wysłania (lista bajtów).
         :return: Odebrane dane (lista bajtów).
         """
@@ -215,7 +204,6 @@ class RPiSPI:
 
     def release(self):
         """
-        Zamykamy połączenie SPI.
+        Zamyka połączenie SPI.
         """
         self.spi.close()
-        print("Released SPI.")
