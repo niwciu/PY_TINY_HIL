@@ -1,6 +1,6 @@
 # group2_runner.py
 from core.test_group_factory import create_test_group
-from .group2_tests import sample_test_1, sample_test_2, sample_test_3
+from .group2_tests import *
 
 # Setup i teardown specyficzny dla tej grupy
 setup_group = lambda: None

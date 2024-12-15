@@ -1,5 +1,5 @@
 from core.test_group_factory import create_test_group
-from .modbus_communication_tests import modbus_read_test
+from .modbus_communication_tests import *
 from core.logger import Logger
 
 # Funkcje setup i teardown specyficzne dla grupy
