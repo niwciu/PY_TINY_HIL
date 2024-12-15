@@ -105,12 +105,20 @@ class TestGroup:
         self.teardown = teardown_func
 
     def run_tests(self, framework):
+        """
+        Uruchamia wszystkie testy w grupie.
+        """
+        # print(f"[RUNNING TEST GROUP] {self.name}")
+        # Uruchom setup grupy, jeśli istnieje
         if self.setup:
-            self.setup()
+            self.setup(framework)
+        # Uruchom testy
         for test in self.tests:
             test.run(framework, self.name)
+        # Uruchom teardown grupy, jeśli istnieje
         if self.teardown:
-            self.teardown()
+            self.teardown(framework)
+
 
 class Test:
     def __init__(self, name, test_func):

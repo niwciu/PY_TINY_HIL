@@ -1,3 +1,4 @@
+#assertion.py
 _current_context = {}  # Globalny słownik do przechowywania kontekstu
 
 def set_test_context(framework, group_name, test_name):

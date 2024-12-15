@@ -1,15 +1,13 @@
-# group3_runner.py
 from core.test_group_factory import create_test_group
 from .group3_tests import *
+from core.assertions import TEST_INFO_MESSAGE
 
 # Setup i teardown specyficzny dla tej grupy
-# Funkcje setup i teardown specyficzne dla grupy
-# def setup_group():
+def setup_group():
+    TEST_INFO_MESSAGE("Setting up Group3")
 
-# def teardown_group():
-
-setup_group = lambda: None
-teardown_group = lambda: None
+def teardown_group():
+    TEST_INFO_MESSAGE("Tearing down Group3")
 
 # Definicja testów
 tests = [

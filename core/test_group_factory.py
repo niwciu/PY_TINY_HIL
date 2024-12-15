@@ -12,25 +12,36 @@ def create_test_group(group_name, setup_func, teardown_func, tests):
     :return: Obiekt TestGroup z dodanymi testami.
     """
     group = TestGroup(group_name)
-    group.set_setup(setup_func)
-    group.set_teardown(teardown_func)
 
+    # Opakowanie funkcji setup z dodaniem frameworka do kontekstu
+    if setup_func:
+        def wrapped_setup(framework):
+            set_test_context(framework, group_name, "Global Setup")
+            try:
+                setup_func()
+            finally:
+                clear_test_context()
+        group.set_setup(wrapped_setup)
+
+    # Opakowanie funkcji teardown z dodaniem frameworka do kontekstu
+    if teardown_func:
+        def wrapped_teardown(framework):
+            set_test_context(framework, group_name, "Global Teardown")
+            try:
+                teardown_func()
+            finally:
+                clear_test_context()
+        group.set_teardown(wrapped_teardown)
+
+    # Dodanie testów do grupy
     for test_name, test_func in tests:
-        # Opakowanie funkcji testowej, przechowując bieżące wartości zmiennych jako domyślne argumenty
         def wrapped_test(framework, group_name=group_name, test_name=test_name, test_func=test_func):
-            """
-            Opakowanie funkcji testowej w celu przekazania brakujących argumentów i ustawienia kontekstu.
-            """
-            # Ustawiamy globalny kontekst dla asercji
             set_test_context(framework, group_name, test_name)
             try:
-                # Wywołujemy rzeczywistą funkcję testową z wymaganymi argumentami
                 test_func(framework, group_name, test_name)
             finally:
-                # Czyszczenie kontekstu po wykonaniu testu
                 clear_test_context()
 
-        # Dodanie opakowanego testu do grupy
         group.add_test(Test(test_name, wrapped_test))
-    
+
     return group
