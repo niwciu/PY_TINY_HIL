@@ -3,6 +3,11 @@ from core.test_group_factory import create_test_group
 from .group3_tests import *
 
 # Setup i teardown specyficzny dla tej grupy
+# Funkcje setup i teardown specyficzne dla grupy
+# def setup_group():
+
+# def teardown_group():
+
 setup_group = lambda: None
 teardown_group = lambda: None
 

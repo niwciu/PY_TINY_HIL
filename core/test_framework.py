@@ -82,6 +82,12 @@ class TestFramework:
         if self.logger.log_file:
             self.logger.log(message, to_console=False, to_log_file=True)
 
+    def report_test_info(self, group_name, test_name, message):
+        message = f"[INFO] {group_name}, {test_name}: {message}"
+        self.logger.log(message,to_console=True)
+        if self.logger.log_file:
+            self.logger.log(message, to_console=False, to_log_file=True)
+
 class TestGroup:
     def __init__(self, name):
         self.name = name

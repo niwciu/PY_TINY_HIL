@@ -18,21 +18,45 @@ def clear_test_context():
     """
     _current_context.clear()
 
-def TEST_FAIL_MESSAGE(message, context = None):
+def TEST_FAIL_MESSAGE(message, context=None):
+    """
+    Asercja raportująca niepowodzenie testu z podanym komunikatem.
+    Jeśli kontekst (context) jest dostępny, raportuje wynik przez framework.
+    Jeśli brak kontekstu, przechowuje symbol do późniejszego wykonania.
+    """
     if context or _current_context:
         # Jeśli mamy kontekst (z argumentów lub globalny), wykonaj asercję
         framework = (context or _current_context).get("framework")
         group_name = (context or _current_context).get("group_name")
         test_name = (context or _current_context).get("test_name")
         framework.report_test_result(
-                    group_name,
-                    test_name,
-                    False,
-                    message)
+            group_name,
+            test_name,
+            False,
+            message
+        )
     else:
         # Jeśli brak kontekstu, przechowaj symbol do późniejszego wykonania
-        return ("assert_equal", actual, expected)
+        return ("TEST_FAIL_MESSAGE", message)
 
+
+def TEST_INFO_MESSAGE(message, context=None):
+    """
+    Loguje wiadomość informacyjną z podanym komunikatem.
+    Jeśli kontekst (context) jest dostępny, używa frameworka do logowania.
+    Jeśli brak kontekstu, przechowuje symbol do późniejszego wykonania.
+    """
+    if context or _current_context:
+        # Jeśli mamy kontekst, wykonaj logowanie przez framework
+        framework = (context or _current_context).get("framework")
+        group_name = (context or _current_context).get("group_name")
+        test_name = (context or _current_context).get("test_name")
+        framework.report_test_info(group_name, test_name, message)
+    else:
+        # Jeśli brak kontekstu, przechowaj symbol do późniejszego wykonania
+        return ("TEST_INFO_MESSAGE", message)
+
+    
 def TEST_ASSERT_EQUAL(expected, actual, context=None):
     """
     Symboliczna asercja sprawdzająca równość.
@@ -56,7 +80,7 @@ def TEST_ASSERT_EQUAL(expected, actual, context=None):
             framework.report_test_result(group_name, test_name, True)
     else:
         # Jeśli brak kontekstu, przechowaj symbol do późniejszego wykonania
-        return ("assert_equal", actual, expected)
+        return ("TEST_ASSERT_EQUAL", actual, expected)
 
 
 def TEST_ASSERT_TRUE(condition, context=None):
@@ -79,7 +103,7 @@ def TEST_ASSERT_TRUE(condition, context=None):
         else:
             framework.report_test_result(group_name, test_name, True)
     else:
-        return ("assert_true", condition)
+        return ("TEST_ASSERT_TRUE", condition)
 
 
 def TEST_ASSERT_IN(item, collection, context=None):
@@ -103,4 +127,4 @@ def TEST_ASSERT_IN(item, collection, context=None):
         else:
             framework.report_test_result(group_name, test_name, True)
     else:
-        return ("assert_in", item, collection)
+        return ("TEST_ASSERT_IN", item, collection)
