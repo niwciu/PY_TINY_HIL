@@ -3,11 +3,14 @@ from .modbus_communication_tests import modbus_read_test
 from core.logger import Logger
 
 # Funkcje setup i teardown specyficzne dla grupy
-def setup_group():
-    print()
+# def setup_group():
+#     print()
 
-def teardown_group():
-    print()
+# def teardown_group():
+#     print()
+
+setup_group = lambda: None
+teardown_group = lambda: None
 
 
 # Definicja testów
