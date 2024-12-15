@@ -1,7 +1,7 @@
 # test_framework.py
 from core.logger import Logger
-# from core.core import Peripheral
 from abc import ABC, abstractmethod
+import sys 
 
 
 class Peripheral(ABC):
@@ -26,17 +26,25 @@ class TestFramework:
         self.test_groups.append(group)
 
     def run_all_tests(self):
-        self.logger.log("\n=================== INITIALIZATION ===================", to_console=True)
+        log_line=("\n=================== INITIALIZATION ===================")
+        self.logger.log(log_line, to_console=True)
         self.peripheral_manager.initialize_all()
 
-        self.logger.log("\n=================== TEST EXECUTION ===================\n", to_console=True)
+        log_line="\n=================== TEST EXECUTION ===================\n"
+        self.logger.log(log_line, to_console=True)
+        if hasattr(self.logger, "log_file") and self.logger.log_file:
+            self.logger.log(log_line, to_console=False, to_log_file = True)
         for group in self.test_groups:
             group.run_tests(self)
 
-        self.logger.log("\n==================== RESOURCE CLEANUP ====================", to_console=True)
+        log_line="\n==================== RESOURCE CLEANUP ===================="
+        self.logger.log(log_line, to_console=True)
         self.peripheral_manager.release_all()
 
         self.print_summary()
+
+        if (self.fail_count !=0):
+            sys.exit(1)
 
     def print_summary(self):
         total = self.total_tests
@@ -58,7 +66,7 @@ class TestFramework:
 
         # Opcjonalnie zapis do pliku (jeśli logger ma ustawiony log_file)
         if hasattr(self.logger, "log_file") and self.logger.log_file:
-            self.logger.log(summary, to_console=False)
+            self.logger.log(summary, to_console=False, to_log_file = True)
 
     def report_test_result(self, group_name, test_name, passed, details=None):
         self.total_tests += 1
@@ -72,7 +80,13 @@ class TestFramework:
                 message += f" {details}"
         self.logger.log(message, to_console=True)
         if self.logger.log_file:
-            self.logger.log(message, to_console=False)
+            self.logger.log(message, to_console=False, to_log_file=True)
+
+    def report_test_info(self, group_name, test_name, message):
+        message = f"[INFO] {group_name}, {test_name}: {message}"
+        self.logger.log(message,to_console=True)
+        if self.logger.log_file:
+            self.logger.log(message, to_console=False, to_log_file=True)
 
 class TestGroup:
     def __init__(self, name):
@@ -91,12 +105,20 @@ class TestGroup:
         self.teardown = teardown_func
 
     def run_tests(self, framework):
+        """
+        Uruchamia wszystkie testy w grupie.
+        """
+        # print(f"[RUNNING TEST GROUP] {self.name}")
+        # Uruchom setup grupy, jeśli istnieje
         if self.setup:
-            self.setup()
+            self.setup(framework)
+        # Uruchom testy
         for test in self.tests:
             test.run(framework, self.name)
+        # Uruchom teardown grupy, jeśli istnieje
         if self.teardown:
-            self.teardown()
+            self.teardown(framework)
+
 
 class Test:
     def __init__(self, name, test_func):

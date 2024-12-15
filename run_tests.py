@@ -6,7 +6,9 @@ from core.logger import Logger
 from core.peripheral_manager import PeripheralManager
 from core.protocols import ModbusTRU
 from core.RPiPeripherals import RPiGPIO, RPiPWM, RPiUART, RPiI2C, RPiSPI
+from core.peripheral_config_loader import load_peripheral_configuration
 import RPi.GPIO as GPIO
+
 
 def load_test_groups(test_directory):
     test_groups = []
@@ -20,30 +22,38 @@ def load_test_groups(test_directory):
                     test_groups.append(attr)
     return test_groups
 
+# def set_peripheral_configuration():
+
+#     # Define peripherals and protocols
+#     pwm = RPiPWM(pin=12, frequency=1000)  # PWM na GPIO12
+#     uart = RPiUART(port='/dev/serial0', baudrate=9600)  # UART
+#     i2c = RPiI2C(bus=1)  # I2C
+#     spi = RPiSPI(bus=0, device=0)  # SPI
+
+    # GPIO configuration
+    # gpio = RPiGPIO({
+    #     17: {'mode': GPIO.OUT, 'initial': GPIO.LOW},
+    #     18: {'mode': GPIO.IN}
+    # })
+
+#     # Add devices to the manager
+#     devices = {
+#         "protocols": [ModbusTRU(port='/dev/ttyUSB0')],
+#         "peripherals": [gpio, pwm, uart, i2c, spi]
+#     }
+#     return devices
+
 def main():
     # Setup logger
     logger = Logger()
 
     if len(sys.argv) > 2 and sys.argv[1] == '--log':
         logger.log_file = sys.argv[2]
-
-    pwm = RPiPWM(pin=12, frequency=1000)  # Konfiguracja PWM na GPIO12
-    uart = RPiUART(port='/dev/serial0', baudrate=9600)  # Konfiguracja UART
-    i2c = RPiI2C(bus=1)  # Konfiguracja magistrali I2C
-    spi = RPiSPI(bus=0, device=0)  # Konfiguracja magistrali SPI
-
-    # Setup devices including GPIO
-    gpio = RPiGPIO({
-        17: {'mode': GPIO.OUT, 'initial': GPIO.LOW},
-        18: {'mode': GPIO.IN}
-    })
-
-    devices = {
-        "protocols": [ModbusTRU()],
-        "peripherals": [gpio, pwm, uart, i2c, spi]
-    }
-    peripheral_manager = PeripheralManager(devices, logger)
-
+    
+    # Create PeripheralManager instance
+    peripheral_manager = PeripheralManager(devices={}, logger=logger)
+    peripheral_manager.devices = load_peripheral_configuration()
+    print(peripheral_manager.devices)
     # Create TestFramework instance
     test_framework = TestFramework(peripheral_manager, logger)
 
@@ -54,8 +64,13 @@ def main():
     for group in test_groups:
         test_framework.add_test_group(group)
 
-    # Run all tests
-    test_framework.run_all_tests()
+    try:
+        # Run all tests (TestFramework should handle initialization itself)
+        test_framework.run_all_tests()
+    except SystemExit as e:
+        # If tests fail or are stopped
+        logger.log(f"[INFO] Test execution stopped with exit code {e.code}.")
+        sys.exit(e.code)
 
 if __name__ == "__main__":
     main()
