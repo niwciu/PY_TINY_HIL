@@ -1,7 +1,6 @@
-# test_framework.py
 from core.logger import Logger
 from abc import ABC, abstractmethod
-import sys 
+import sys
 
 
 class Peripheral(ABC):
@@ -12,6 +11,7 @@ class Peripheral(ABC):
     @abstractmethod
     def release(self):
         pass
+
 
 class TestFramework:
     def __init__(self, peripheral_manager, logger):
@@ -26,25 +26,28 @@ class TestFramework:
         self.test_groups.append(group)
 
     def run_all_tests(self):
-        log_line=("\n=================== INITIALIZATION ===================")
-        self.logger.log(log_line, to_console=True)
+        """
+        Runs all test groups and generates logs/reports.
+        """
+        self.logger.log("\n=================== INITIALIZATION ===================", to_console=True)
         self.peripheral_manager.initialize_all()
 
-        log_line="\n=================== TEST EXECUTION ===================\n"
-        self.logger.log(log_line, to_console=True)
-        if hasattr(self.logger, "log_file") and self.logger.log_file:
-            self.logger.log(log_line, to_console=False, to_log_file = True)
+        self.logger.log("\n=================== TEST EXECUTION ===================", to_console=True)
         for group in self.test_groups:
             group.run_tests(self)
 
-        log_line="\n==================== RESOURCE CLEANUP ===================="
-        self.logger.log(log_line, to_console=True)
+        self.logger.log("\n==================== RESOURCE CLEANUP ====================", to_console=True)
         self.peripheral_manager.release_all()
 
         self.print_summary()
 
-        if (self.fail_count !=0):
+        # Generate HTML report if enabled
+        if self.logger.html_file:
+            self.logger.generate_html_report()
+
+        if self.fail_count > 0:
             sys.exit(1)
+
 
     def print_summary(self):
         total = self.total_tests
@@ -66,9 +69,16 @@ class TestFramework:
 
         # Opcjonalnie zapis do pliku (jeśli logger ma ustawiony log_file)
         if hasattr(self.logger, "log_file") and self.logger.log_file:
-            self.logger.log(summary, to_console=False, to_log_file = True)
+            self.logger.log(summary, to_console=False, to_log_file=True)
 
     def report_test_result(self, group_name, test_name, passed, details=None):
+        """
+        Reports the result of a test.
+        :param group_name: The name of the test group.
+        :param test_name: The name of the test.
+        :param passed: Whether the test passed or failed.
+        :param details: Additional details about the test result.
+        """
         self.total_tests += 1
         if passed:
             message = f"[PASS] {group_name}, {test_name}"
@@ -78,15 +88,23 @@ class TestFramework:
             self.fail_count += 1
             if details:
                 message += f" {details}"
+
+        # Log to console, file, and HTML report (if enabled)
+        self.logger.log(
+            message,
+            to_console=True,
+            to_log_file=self.logger.log_file is not None,
+            html_log=self.logger.html_file is not None
+        )
+
+
+
+    def report_test_info(self, group_name, test_name, message):
+        message = f"[INFO] {group_name}, {test_name}: {message}"
         self.logger.log(message, to_console=True)
         if self.logger.log_file:
             self.logger.log(message, to_console=False, to_log_file=True)
 
-    def report_test_info(self, group_name, test_name, message):
-        message = f"[INFO] {group_name}, {test_name}: {message}"
-        self.logger.log(message,to_console=True)
-        if self.logger.log_file:
-            self.logger.log(message, to_console=False, to_log_file=True)
 
 class TestGroup:
     def __init__(self, name):
@@ -108,13 +126,19 @@ class TestGroup:
         """
         Uruchamia wszystkie testy w grupie.
         """
-        # print(f"[RUNNING TEST GROUP] {self.name}")
+        log_line = f"[RUNNING TEST GROUP] {self.name}"
+        framework.logger.log(log_line, to_console=True)
+        if framework.logger.log_file:
+            framework.logger.log(log_line, to_console=False, to_log_file=True)
+
         # Uruchom setup grupy, jeśli istnieje
         if self.setup:
             self.setup(framework)
+
         # Uruchom testy
         for test in self.tests:
             test.run(framework, self.name)
+
         # Uruchom teardown grupy, jeśli istnieje
         if self.teardown:
             self.teardown(framework)

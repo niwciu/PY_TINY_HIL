@@ -1,0 +1,100 @@
+# Updated HTML template to match the full functionality of the provided example
+html_template_complete = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Test Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="default_style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Responsive Test Report</h1>
+        <div class="summary">
+            <div class="item pass">Pass: 4</div>
+            <div class="item fail">Fail: 2</div>
+            <div class="item info">Info: 0</div>
+            <div class="item warning">Warning: 0</div>
+            <div class="item error">Error: 0</div>
+        </div>
+        <div class="chart-container">
+            <canvas id="testChart"></canvas>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar progress-pass" style="width: 67%;">67% PASS</div>
+            <div class="progress-bar progress-fail" style="width: 33%;">33% FAIL</div>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" onkeyup="searchTests()" placeholder="Search for tests..." />
+        </div>
+        <div class="filter-buttons">
+            <button onclick="filterResults('ALL')">Show All</button>
+            <button onclick="filterResults('PASS')">Show PASS</button>
+            <button onclick="filterResults('FAIL')">Show FAIL</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Group / Test Name</th>
+                    <th>Details</th>
+                    <th>Additional Info</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function toggleGroup(groupId) {
+            const groupContent = document.getElementById(groupId);
+            groupContent.classList.toggle('hidden');
+        }
+        function filterResults(status) {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                if (status === 'ALL') {
+                    row.style.display = '';
+                } else if (row.classList.contains(status.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        function searchTests() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        }
+        function generatePieChart() {
+            const ctx = document.getElementById('testChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['PASS', 'FAIL'],
+                    datasets: [{
+                        data: [4, 2],
+                        backgroundColor: ['#27ae60', '#e74c3c'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', generatePieChart);
+    </script>
+</body>
+</html>"""
+

@@ -1,18 +1,20 @@
-
-=================== TEST EXECUTION ===================
-
-[PASS] Group2 Group, Group2 Test 1
-[PASS] Group2 Group, Group2 Test 2
-[PASS] Group2 Group, Group2 Test 3
+[RUNNING TEST GROUP] Test_Group_2
+[INFO] Test_Group_2, Test 1: TEST
+[FAIL] Test_Group_2, Test 2: Assertion failed! Expected value = 4, actual value = 51 
+[PASS] Test_Group_2, Test 3
+[RUNNING TEST GROUP] Modbus Communication Tests
 [FAIL] Modbus Communication Tests, Read Holding Register Test: Modbus error: Modbus Error: [Input/Output] Modbus Error: [Invalid Message] No response received, expected at least 4 bytes (0 received)
-[PASS] Group3 Group, Group3 Test 1
-[PASS] Group3 Group, Group3 Test 2
-[PASS] Group3 Group, Group3 Test 3
+[RUNNING TEST GROUP] Test_Group_3
+[INFO] Test_Group_3, Global Setup: Setting up Group3
+[PASS] Test_Group_3, Test 1
+[PASS] Test_Group_3, Test 2
+[PASS] Test_Group_3, Test 3
+[INFO] Test_Group_3, Global Teardown: Tearing down Group3
 
 =================== TEST SUMMARY ===================
-> Total Tests Run:     7
-> Passed:              6 ✅
-> Failed:              1 ❌
+> Total Tests Run:     6
+> Passed:              4 ✅
+> Failed:              2 ❌
 
 ======================== STATUS =====================
 
