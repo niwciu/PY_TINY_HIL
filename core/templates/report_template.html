@@ -1,22 +1,80 @@
-# Updated HTML template to match the full functionality of the provided example
-html_template_complete = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsive Test Report</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="default_style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function toggleGroup(groupId) {
+            const groupContent = document.getElementById(groupId);
+            groupContent.classList.toggle('hidden');
+        }
+
+        function filterResults(status) {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                if (status === 'ALL') {
+                    row.style.display = '';
+                } else if (row.classList.contains(status.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function searchTests() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        }
+
+        function generatePieChart() {
+            const ctxPie = document.getElementById('testChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['PASS', 'FAIL'],
+                    datasets: [{
+                        data: [{{ passed }}, {{ failed }}],
+                        backgroundColor: ['#27ae60', '#e74c3c'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', generatePieChart);
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Responsive Test Report</h1>
         <div class="summary">
-            <div class="item pass">Pass: {{ summary.PASS }}</div>
-            <div class="item fail">Fail: {{ summary.FAIL }}</div>
-            <div class="item info">Info: {{ summary.INFO }}</div>
-            <div class="item warning">Warning: {{ summary.WARNING }}</div>
-            <div class="item error">Error: {{ summary.ERROR }}</div>
+            <div class="item">
+                <span>{{ total_tests }}</span>
+                <small>Total Tests</small>
+            </div>
+            <div class="item pass">
+                <span>{{ passed }}</span>
+                <small>PASS</small>
+            </div>
+            <div class="item fail">
+                <span>{{ failed }}</span>
+                <small>FAIL</small>
+            </div>
         </div>
         <div class="chart-container">
             <canvas id="testChart"></canvas>
@@ -43,20 +101,20 @@ html_template_complete = """<!DOCTYPE html>
                 </tr>
             </thead>
             <tbody>
-                {% for group in groups %}
-                <tr class="group-header" onclick="toggleGroup('group{{ loop.index }}')">
-                    <td class="{{ group.status|lower }}"><span class="icon">{{ group.status }}</span></td>
+                {% for group in test_results %}
+                <tr class="group-header" onclick="toggleGroup('{{ group.id }}')">
+                    <td class="{{ group.status|lower }}"><span class="icon">{{ '✔' if group.status == 'PASS' else '✘' }}</span> {{ group.status }}</td>
                     <td>{{ group.name }}</td>
                     <td>{{ group.summary }}</td>
                     <td>Click to expand/collapse</td>
                 </tr>
-                <tbody id="group{{ loop.index }}" class="group-content hidden">
+                <tbody id="{{ group.id }}" class="group-content">
                     {% for test in group.tests %}
                     <tr class="{{ test.status|lower }}">
-                        <td>{{ test.status }}</td>
+                        <td class="{{ test.status|lower }}"><span class="icon">{{ '✔' if test.status == 'PASS' else '✘' }}</span> {{ test.status }}</td>
                         <td>{{ test.name }}</td>
                         <td>{{ test.details }}</td>
-                        <td>{{ test.info }}</td>
+                        <td>{{ test.info or '-' }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -64,55 +122,5 @@ html_template_complete = """<!DOCTYPE html>
             </tbody>
         </table>
     </div>
-    <script>
-        function toggleGroup(groupId) {
-            const groupContent = document.getElementById(groupId);
-            groupContent.classList.toggle('hidden');
-        }
-        function filterResults(status) {
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                if (status === 'ALL') {
-                    row.style.display = '';
-                } else if (row.classList.contains(status.toLowerCase())) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-        function searchTests() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(input) ? '' : 'none';
-            });
-        }
-        function generatePieChart() {
-            const ctx = document.getElementById('testChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['PASS', 'FAIL'],
-                    datasets: [{
-                        data: [{{ summary.PASS }}, {{ summary.FAIL }}],
-                        backgroundColor: ['#27ae60', '#e74c3c'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        }
-                    }
-                }
-            });
-        }
-        document.addEventListener('DOMContentLoaded', generatePieChart);
-    </script>
 </body>
-</html>"""
-
-
+</html>

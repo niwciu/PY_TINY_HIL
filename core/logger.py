@@ -120,44 +120,64 @@ class Logger:
             print(f"Creating directory for HTML report: {html_dir}")
             os.makedirs(html_dir, exist_ok=True)
 
-        # Summarize log levels
+        # Prepare summary
         summary = {
-            "PASS": len([entry for entry in self.log_entries if entry["level"] == "PASS"]),
-            "FAIL": len([entry for entry in self.log_entries if entry["level"] == "FAIL"]),
-            "INFO": len([entry for entry in self.log_entries if entry["level"] == "INFO"]),
-            "WARNING": len([entry for entry in self.log_entries if entry["level"] == "WARNING"]),
-            "ERROR": len([entry for entry in self.log_entries if entry["level"] == "ERROR"]),
+            "passed": len([entry for entry in self.log_entries if entry["level"] == "PASS"]),
+            "failed": len([entry for entry in self.log_entries if entry["level"] == "FAIL"]),
         }
+        summary["total_tests"] = summary["passed"] + summary["failed"]
+        summary["pass_percentage"] = (summary["passed"] / summary["total_tests"] * 100) if summary["total_tests"] > 0 else 0
+        summary["fail_percentage"] = 100 - summary["pass_percentage"]
 
-        pass_count = summary["PASS"]
-        fail_count = summary["FAIL"]
-        total = pass_count + fail_count
-        pass_percentage = round((pass_count / total) * 100) if total > 0 else 0
-        fail_percentage = 100 - pass_percentage
+        # Group test results by group name
+        grouped_tests = {}
+        for entry in self.log_entries:
+            group_name = entry.get("group_name", "Ungrouped")
+            if group_name not in grouped_tests:
+                grouped_tests[group_name] = {
+                    "id": group_name.replace(" ", "_").lower(),
+                    "name": group_name,
+                    "tests": [],
+                    "status": "PASS",
+                    "summary": "",
+                }
+            grouped_tests[group_name]["tests"].append({
+                "name": entry.get("test_name", "Unnamed Test"),
+                "status": entry["level"],
+                "details": entry.get("message", ""),
+                "info": entry.get("additional_info", ""),
+            })
+            if entry["level"] == "FAIL":
+                grouped_tests[group_name]["status"] = "FAIL"
 
-        print(f"Generating HTML report: Total={total}, Pass={pass_count}, Fail={fail_count}")
+        # Add summaries for groups
+        for group in grouped_tests.values():
+            pass_count = len([t for t in group["tests"] if t["status"] == "PASS"])
+            fail_count = len([t for t in group["tests"] if t["status"] == "FAIL"])
+            group["summary"] = f"{pass_count} PASS, {fail_count} FAIL"
 
-        # Render the HTML template
+        # Render HTML
         rendered_html = self.template.render(
-            log_entries=self.log_entries,
-            summary=summary,
-            pass_percentage=pass_percentage,
-            fail_percentage=fail_percentage
+            total_tests=summary["total_tests"],
+            passed=summary["passed"],
+            failed=summary["failed"],
+            pass_percentage=summary["pass_percentage"],
+            fail_percentage=summary["fail_percentage"],
+            test_results=list(grouped_tests.values())
         )
 
-        # Write the rendered HTML to the specified file
-        try:
-            with open(self.html_file, 'w', encoding='utf-8') as f:
-                f.write(rendered_html)
-            print(f"HTML report successfully written to: {self.html_file}")
+        # Write HTML to file
+        with open(self.html_file, "w", encoding="utf-8") as f:
+            f.write(rendered_html)
+        print(f"HTML report successfully written to: {self.html_file}")
 
-            # Copy CSS file to the same directory as the HTML file
-            css_target_path = os.path.join(html_dir, 'default_style.css')
-            shutil.copy(self.css_file, css_target_path)
-            print(f"CSS file successfully copied to: {css_target_path}")
+        # Copy CSS file
+        css_target_path = os.path.join(html_dir, "default_style.css")
+        shutil.copy(self.css_file, css_target_path)
+        print(f"CSS file successfully copied to: {css_target_path}")
 
-        except Exception as e:
-            print(f"Error writing HTML report or copying CSS: {e}")
+
+
 
     def _extract_level(self, message):
         """
