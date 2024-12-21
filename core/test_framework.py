@@ -73,29 +73,42 @@ class TestFramework:
 
     def report_test_result(self, group_name, test_name, passed, details=None):
         """
-        Reports the result of a test.
-        :param group_name: The name of the test group.
-        :param test_name: The name of the test.
-        :param passed: Whether the test passed or failed.
-        :param details: Additional details about the test result.
+        Reports the result of a single test.
+        :param group_name: Name of the test group.
+        :param test_name: Name of the individual test.
+        :param passed: Boolean indicating whether the test passed or failed.
+        :param details: Additional information about the test result.
         """
         self.total_tests += 1
+
+        # Determine test status
         if passed:
-            message = f"[PASS] {group_name}, {test_name}"
+            status = "PASS"
             self.pass_count += 1
         else:
-            message = f"[FAIL] {group_name}, {test_name}:"
+            status = "FAIL"
             self.fail_count += 1
-            if details:
-                message += f" {details}"
 
-        # Log to console, file, and HTML report (if enabled)
-        self.logger.log(
-            message,
-            to_console=True,
-            to_log_file=self.logger.log_file is not None,
-            html_log=self.logger.html_file is not None
-        )
+        # Log to console
+        message = f"[{status}] {group_name} -> {test_name}"
+        if details:
+            message += f": {details}"
+        self.logger.log(message, to_console=True)
+
+        # Log to file if --log is enabled
+        if self.logger.log_file:
+            self.logger.log(message, to_console=False, to_log_file=True)
+
+        # Collect data for HTML report
+        if self.logger.html_file:
+            self.logger.log_entries.append({
+                "group_name": group_name,
+                "test_name": test_name,
+                "level": status,
+                "message": details or "",
+                "additional_info": "-"
+            })
+
 
 
 

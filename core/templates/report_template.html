@@ -11,11 +11,47 @@
             const groupContent = document.getElementById(groupId);
             groupContent.classList.toggle('hidden');
         }
-
-        function filterResults(status) {
+    
+        function toggleAllGroups() {
+            const groupContents = document.querySelectorAll('.group-content');
+            const toggleButton = document.getElementById('toggleButton');
+            const isHidden = toggleButton.innerText === 'Show All';
+    
+            // Resetuje filtrowanie: pokazuje wszystkie wiersze i grupy
             const rows = document.querySelectorAll('tbody tr');
             rows.forEach(row => {
-                if (status === 'ALL') {
+                row.style.display = ''; // Pokazuje wszystkie wiersze
+            });
+    
+            groupContents.forEach(groupContent => {
+                if (isHidden) {
+                    groupContent.classList.remove('hidden'); // Rozwiń grupy
+                } else {
+                    groupContent.classList.add('hidden'); // Zwiń grupy
+                }
+            });
+    
+            // Resetuje filtr na "ALL"
+            document.querySelectorAll('.group-header').forEach(header => {
+                header.style.display = ''; // Pokaż wszystkie grupy
+            });
+    
+            toggleButton.innerText = isHidden ? 'Hide All' : 'Show All'; // Zmień tekst przycisku
+        }
+    
+        function filterResults(status) {
+            const rows = document.querySelectorAll('tbody tr');
+            const groups = document.querySelectorAll('.group-header');
+            const groupContents = document.querySelectorAll('.group-content');
+            const toggleButton = document.getElementById('toggleButton');
+    
+            // Ustaw przycisk na "Show All" jako domyślny stan
+            toggleButton.innerText = 'Show All';
+    
+            rows.forEach(row => {
+                if (row.classList.contains('group-header')) {
+                    row.style.display = '';
+                } else if (status === 'ALL') {
                     row.style.display = '';
                 } else if (row.classList.contains(status.toLowerCase())) {
                     row.style.display = '';
@@ -23,17 +59,43 @@
                     row.style.display = 'none';
                 }
             });
+    
+            groups.forEach((group, index) => {
+                const groupContent = groupContents[index];
+                const visibleTests = Array.from(groupContent.children).some(
+                    row => row.style.display !== 'none'
+                );
+                group.style.display = visibleTests ? '' : 'none';
+                if (status !== 'ALL' && visibleTests) {
+                    groupContent.classList.remove('hidden'); // Rozwiń grupy z widocznymi testami
+                }
+            });
         }
-
+    
         function searchTests() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const rows = document.querySelectorAll('tbody tr');
+            const groups = document.querySelectorAll('.group-header');
+            const groupContents = document.querySelectorAll('.group-content');
+    
             rows.forEach(row => {
                 const text = row.innerText.toLowerCase();
                 row.style.display = text.includes(input) ? '' : 'none';
+    
+                if (row.classList.contains('group-header')) {
+                    row.style.display = '';
+                }
+            });
+    
+            groups.forEach((group, index) => {
+                const groupContent = groupContents[index];
+                const visibleTests = Array.from(groupContent.children).some(
+                    row => row.style.display !== 'none'
+                );
+                group.style.display = visibleTests ? '' : 'none';
             });
         }
-
+    
         function generatePieChart() {
             const ctxPie = document.getElementById('testChart').getContext('2d');
             new Chart(ctxPie, {
@@ -55,9 +117,9 @@
                 }
             });
         }
-
+    
         document.addEventListener('DOMContentLoaded', generatePieChart);
-    </script>
+    </script>      
 </head>
 <body>
     <div class="container">
@@ -87,7 +149,7 @@
             <input type="text" id="searchInput" onkeyup="searchTests()" placeholder="Search for tests..." />
         </div>
         <div class="filter-buttons">
-            <button onclick="filterResults('ALL')">Show All</button>
+            <button id="toggleButton" onclick="toggleAllGroups()">Show All</button>
             <button onclick="filterResults('PASS')">Show PASS</button>
             <button onclick="filterResults('FAIL')">Show FAIL</button>
         </div>
@@ -103,18 +165,22 @@
             <tbody>
                 {% for group in test_results %}
                 <tr class="group-header" onclick="toggleGroup('{{ group.id }}')">
-                    <td class="{{ group.status|lower }}"><span class="icon">{{ '✔' if group.status == 'PASS' else '✘' }}</span> {{ group.status }}</td>
+                    <td class="{{ group.status|lower }}">
+                        <span class="icon">{{ '✔' if group.status == 'PASS' else '✘' }}</span> {{ group.status }}
+                    </td>
                     <td>{{ group.name }}</td>
                     <td>{{ group.summary }}</td>
-                    <td>Click to expand/collapse</td>
+                    <td>Click <span style="cursor: pointer;">👉</span></td>
                 </tr>
-                <tbody id="{{ group.id }}" class="group-content">
+                <tbody id="{{ group.id }}" class="group-content hidden">
                     {% for test in group.tests %}
                     <tr class="{{ test.status|lower }}">
-                        <td class="{{ test.status|lower }}"><span class="icon">{{ '✔' if test.status == 'PASS' else '✘' }}</span> {{ test.status }}</td>
+                        <td class="{{ test.status|lower }}">
+                            <span class="icon">{{ '✔' if test.status == 'PASS' else '✘' }}</span> {{ test.status }}
+                        </td>
                         <td>{{ test.name }}</td>
                         <td>{{ test.details }}</td>
-                        <td>{{ test.info or '-' }}</td>
+                        <td>Test Code <span style="cursor: pointer;">👉</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>

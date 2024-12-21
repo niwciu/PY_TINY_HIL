@@ -1,5 +1,3 @@
-to plik default_style.css
-
 /* General styles for the body */
 body {
     font-family: Arial, sans-serif;
@@ -15,6 +13,7 @@ h1 {
     max-width: 1200px;
     margin: 0 auto;
 }
+
 /* Summary section styles */
 .summary {
     display: flex;
@@ -53,12 +52,14 @@ h1 {
 .summary .item.fail {
     border-top: 5px solid #e74c3c;
 }
+
 /* Chart container styles */
 .chart-container {
     width: 300px;
     height: 300px;
     margin: auto;
 }
+
 /* Progress bar styles */
 .progress-bar-container {
     width: 100%;
@@ -82,6 +83,7 @@ h1 {
 .progress-fail {
     background-color: #e74c3c;
 }
+
 /* Filter buttons and search bar */
 .filter-buttons, .search-container {
     text-align: center;
@@ -103,15 +105,21 @@ h1 {
     width: 300px;
     padding: 8px;
 }
+
 /* Table styles */
 table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: collapse; /* Przywraca linie między wierszami */
     margin-top: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    table-layout: fixed; /* Ustawia stały układ tabeli */
+    border: 1px solid #ddd; /* Ramka dla całej tabeli */
 }
-table, th, td {
-    border: 1px solid #ddd;
+th, td {
+    padding: 5px; /* Zmniejszona wysokość wiersza */
+    text-align: center;
+    word-wrap: break-word; /* Zawijanie tekstu w komórkach */
+    border: 1px solid #ddd; /* Linie między komórkami */
 }
 th {
     background-color: #34495e;
@@ -119,7 +127,7 @@ th {
     padding: 10px;
 }
 td {
-    padding: 10px;
+    padding: 5px;
     text-align: center;
 }
 td.pass {
@@ -131,18 +139,50 @@ td.fail {
     font-weight: bold;
 }
 .group-header {
-    background: #34495e;
-    color: white;
+    background: #eaf6ff; /* Bardzo jasny pastelowy niebieski */
+    color: #333; 
     text-align: center;
     padding: 10px;
     cursor: pointer;
+    font-weight: bold;
+    border-bottom: 1px solid #d4ebf7;
+    border-radius: 4px;
 }
+
 .group-header:hover {
-    background: #2c3e50;
+    background: #dff0fc; /* Subtelnie ciemniejszy odcień przy najechaniu */
 }
-.group-content {
-    display: table-row-group;
-}
+
 .hidden {
     display: none;
+}
+
+/* Fixed column widths */
+th:nth-child(1), td:nth-child(1) {
+    width: 10%; /* Dopasowane do zawartości PASS/FAIL i symboli */
+}
+th:nth-child(2), td:nth-child(2) {
+    width: 45%; /* Więcej miejsca dla grup/testów */
+}
+th:nth-child(3), td:nth-child(3) {
+    width: 35%; /* Szczegóły */
+}
+th:nth-child(4), td:nth-child(4) {
+    width: 10%; /* Dodatkowe informacje */
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    th:nth-child(1), td:nth-child(1) {
+        width: 15%;
+    }
+    th:nth-child(2), td:nth-child(2) {
+        width: 50%;
+    }
+    th:nth-child(3), td:nth-child(3) {
+        width: 25%;
+    }
+    th:nth-child(4), td:nth-child(4) {
+        width: 10%;
+    }
 }

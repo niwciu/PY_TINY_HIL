@@ -117,7 +117,6 @@ class Logger:
         # Ensure the directory for the HTML file exists
         html_dir = os.path.dirname(self.html_file)
         if html_dir and not os.path.exists(html_dir):
-            print(f"Creating directory for HTML report: {html_dir}")
             os.makedirs(html_dir, exist_ok=True)
 
         # Prepare summary
@@ -129,7 +128,7 @@ class Logger:
         summary["pass_percentage"] = (summary["passed"] / summary["total_tests"] * 100) if summary["total_tests"] > 0 else 0
         summary["fail_percentage"] = 100 - summary["pass_percentage"]
 
-        # Group test results by group name
+        # Group test results
         grouped_tests = {}
         for entry in self.log_entries:
             group_name = entry.get("group_name", "Ungrouped")
@@ -145,12 +144,12 @@ class Logger:
                 "name": entry.get("test_name", "Unnamed Test"),
                 "status": entry["level"],
                 "details": entry.get("message", ""),
-                "info": entry.get("additional_info", ""),
+                "info": entry.get("additional_info", "-"),
             })
             if entry["level"] == "FAIL":
                 grouped_tests[group_name]["status"] = "FAIL"
 
-        # Add summaries for groups
+        # Add group summaries
         for group in grouped_tests.values():
             pass_count = len([t for t in group["tests"] if t["status"] == "PASS"])
             fail_count = len([t for t in group["tests"] if t["status"] == "FAIL"])
