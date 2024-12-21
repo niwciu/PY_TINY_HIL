@@ -23,7 +23,7 @@ class Logger:
             print(f"HTML report requested. HTML file: {self.html_file}")
             template_path = os.path.join(os.path.dirname(__file__), 'templates')
             template_file = os.path.join(template_path, 'report_template.html')
-            css_file = os.path.join(template_path, 'default_style.css')
+            css_file = os.path.join(template_path, 'styles.css')
             print(f"Looking for HTML template at: {template_file}")
             if not os.path.exists(template_file):
                 raise FileNotFoundError(f"HTML template file not found: {template_file}")
@@ -216,7 +216,7 @@ class Logger:
         print(f"HTML report successfully written to: {self.html_file}")
 
         # Copy CSS file
-        css_target_path = os.path.join(html_dir, "default_style.css")
+        css_target_path = os.path.join(html_dir, "styles.css")
         shutil.copy(self.css_file, css_target_path)
         print(f"CSS file successfully copied to: {css_target_path}")
 
