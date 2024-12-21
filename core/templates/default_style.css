@@ -167,6 +167,41 @@ pre code {
     overflow-x: auto;
 }
 
+/* Prism.js syntax highlighting customization */
+pre code .hljs-keyword, pre code .hljs-selector-tag {
+    color: #569cd6; /* Keywords and tags */
+    font-weight: bold;
+}
+pre code .hljs-string, pre code .hljs-title, pre code .hljs-name {
+    color: #d69d85; /* Strings and titles */
+}
+pre code .hljs-number, pre code .hljs-literal {
+    color: #b5cea8; /* Numbers and literals */
+}
+pre code .hljs-comment {
+    color: #6a9955; /* Comments */
+    font-style: italic;
+}
+pre code .hljs-attribute, pre code .hljs-variable {
+    color: #9cdcfe; /* Attributes and variables */
+}
+pre code .hljs-built_in, pre code .hljs-class {
+    color: #4ec9b0; /* Built-in objects and classes */
+}
+pre code .hljs-meta {
+    color: #dcdcaa; /* Metadata */
+    font-style: italic;
+}
+pre code .hljs-function {
+    color: #c586c0; /* Functions */
+}
+pre code .hljs-emphasis {
+    font-style: italic; /* Emphasized text */
+}
+pre code .hljs-strong {
+    font-weight: bold; /* Strong text */
+}
+
 /* Test code styles */
 .test-code {
     margin-bottom: 20px;

@@ -4,25 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Code for Test_Group_2</title>
-    <link rel="stylesheet" href="default_style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="default_style.css"> <!-- Twój plik z ciemnym motywem -->
+    <!-- Prism.js Dark Theme -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <!-- Prism.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <!-- Prism.js Language Support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     <script>
         function highlightSection(sectionId) {
-            // Remove persistent highlight from all sections
             document.querySelectorAll('.test-code.highlight-persistent').forEach(section => {
                 section.classList.remove('highlight-persistent');
             });
 
             const section = document.getElementById(sectionId);
             if (section) {
-                // Add temporary highlight
                 section.classList.add('highlight-temporary');
-
-                // Scroll to the section
                 section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-                // Remove temporary highlight after 2 seconds and add persistent highlight
                 setTimeout(() => {
                     section.classList.remove('highlight-temporary');
                     section.classList.add('highlight-persistent');
@@ -30,17 +29,11 @@
             }
         }
 
-        // Automatically highlight the section if a hash is present in the URL
         document.addEventListener('DOMContentLoaded', () => {
             const hash = window.location.hash.substring(1);
             if (hash) {
                 highlightSection(hash);
             }
-
-            // Initialize Highlight.js
-            document.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
         });
     </script>
 </head>
