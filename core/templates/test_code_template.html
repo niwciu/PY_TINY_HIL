@@ -73,12 +73,16 @@
 <body>
     <div class="container">
         <h1>Test Code for {{ group_name }}</h1>
-        {% for test in tests %}
-        <div class="test-code" id="{{ test.id }}">
-            <h2>{{ test.test_name }}</h2>
-            <pre><code class="language-python">{{ test.code }}</code></pre>
-        </div>
-        {% endfor %}
+        {% if tests %}
+            {% for test in tests %}
+            <div class="test-code" id="{{ test.id }}">
+                <h2>{{ test.test_name }}</h2>
+                <pre><code class="language-python">{{ test.code }}</code></pre>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No test cases available for this group.</p>
+        {% endif %}
     </div>
 </body>
 </html>

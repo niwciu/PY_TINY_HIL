@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Code for Test_Group_3</title>
+    <title>Test Code for Test_Group_2</title>
     <link rel="stylesheet" href="../default_style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.css">
     <style>
@@ -72,40 +72,30 @@
 </head>
 <body>
     <div class="container">
-        <h1>Test Code for Test_Group_3</h1>
+        <h1>Test Code for Test_Group_2</h1>
         
-        <div class="test-code" id="test_1">
-            <h2>Test 1</h2>
-            <pre><code class="language-python">        def wrapped_test(framework, group_name=group_name, test_name=test_name, test_func=test_func):
-            set_test_context(framework, group_name, test_name)
-            try:
-                test_func(framework, group_name, test_name)
-            finally:
-                clear_test_context()
+            
+            <div class="test-code" id="test_1">
+                <h2>Test 1</h2>
+                <pre><code class="language-python">def sample_test_1(framework, group_name, test_name):
+    TEST_INFO_MESSAGE("TEST")
 </code></pre>
-        </div>
-        
-        <div class="test-code" id="test_2">
-            <h2>Test 2</h2>
-            <pre><code class="language-python">        def wrapped_test(framework, group_name=group_name, test_name=test_name, test_func=test_func):
-            set_test_context(framework, group_name, test_name)
-            try:
-                test_func(framework, group_name, test_name)
-            finally:
-                clear_test_context()
+            </div>
+            
+            <div class="test-code" id="test_2">
+                <h2>Test 2</h2>
+                <pre><code class="language-python">def sample_test_2(framework, group_name, test_name):
+    TEST_ASSERT_EQUAL(4,51)
 </code></pre>
-        </div>
-        
-        <div class="test-code" id="test_3">
-            <h2>Test 3</h2>
-            <pre><code class="language-python">        def wrapped_test(framework, group_name=group_name, test_name=test_name, test_func=test_func):
-            set_test_context(framework, group_name, test_name)
-            try:
-                test_func(framework, group_name, test_name)
-            finally:
-                clear_test_context()
+            </div>
+            
+            <div class="test-code" id="test_3">
+                <h2>Test 3</h2>
+                <pre><code class="language-python">def sample_test_3(framework, group_name, test_name):
+    TEST_ASSERT_EQUAL(4,4)
 </code></pre>
-        </div>
+            </div>
+            
         
     </div>
 </body>

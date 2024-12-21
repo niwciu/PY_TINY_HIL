@@ -120,11 +120,16 @@ class TestFramework:
 
 
 class TestGroup:
-    def __init__(self, name):
+    def __init__(self, name, test_file=None):
+        """
+        :param name: Nazwa grupy testowej.
+        :param test_file: Ścieżka do pliku zawierającego definicje testów.
+        """
         self.name = name
         self.tests = []
         self.setup = None
         self.teardown = None
+        self.test_file = test_file  # Ścieżka do pliku testów
 
     def add_test(self, test):
         self.tests.append(test)
@@ -139,11 +144,6 @@ class TestGroup:
         """
         Uruchamia wszystkie testy w grupie.
         """
-        # log_line = f"[INFO] Running Test Group:  {self.name}"
-        # framework.logger.log(log_line, to_console=True)
-        # if framework.logger.log_file:
-        #     framework.logger.log(log_line, to_console=False, to_log_file=True)
-
         # Uruchom setup grupy, jeśli istnieje
         if self.setup:
             self.setup(framework)
@@ -157,13 +157,42 @@ class TestGroup:
             self.teardown(framework)
 
 
+    # def run_tests(self, framework):
+    #     """
+    #     Uruchamia wszystkie testy w grupie.
+    #     """
+    #     # log_line = f"[INFO] Running Test Group:  {self.name}"
+    #     # framework.logger.log(log_line, to_console=True)
+    #     # if framework.logger.log_file:
+    #     #     framework.logger.log(log_line, to_console=False, to_log_file=True)
+
+    #     # Uruchom setup grupy, jeśli istnieje
+    #     if self.setup:
+    #         self.setup(framework)
+
+    #     # Uruchom testy
+    #     for test in self.tests:
+    #         test.run(framework, self.name)
+
+    #     # Uruchom teardown grupy, jeśli istnieje
+    #     if self.teardown:
+    #         self.teardown(framework)
+
+
 class Test:
-    def __init__(self, name, test_func):
+    def __init__(self, name, test_func, original_func=None):
+        """
+        :param name: Wyświetlana nazwa testu.
+        :param test_func: Funkcja wykonująca test (opakowana).
+        :param original_func: Oryginalna funkcja testowa (do pobierania kodu).
+        """
         self.name = name
         self.test_func = test_func
+        self.original_func = original_func
 
     def run(self, framework, group_name):
         try:
             self.test_func(framework, group_name, self.name)
         except Exception as e:
             framework.report_test_result(group_name, self.name, False, str(e))
+

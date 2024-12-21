@@ -123,7 +123,21 @@ class Logger:
             print("Error: No test groups provided to generate_html_report.")
             return
 
-        # Prepare summary
+        # Step 1: Generate test code pages first
+        self.generate_test_code_pages(test_groups, html_dir)
+
+        # Debugging updated log entries
+        print("[DEBUG] Updated log entries with test info:")
+        for entry in self.log_entries:
+            for group in test_groups:
+                if group.name == entry.get("group_name"):
+                    for test in group.tests:
+                        if test.name == entry.get("test_name"):
+                            entry["additional_info"] = test.info
+                            print(f"[DEBUG] Log Entry Updated: {entry}")
+                            break
+
+        # Step 2: Prepare summary for the main report
         summary = {
             "passed": len([entry for entry in self.log_entries if entry["level"] == "PASS"]),
             "failed": len([entry for entry in self.log_entries if entry["level"] == "FAIL"]),
@@ -134,7 +148,7 @@ class Logger:
         )
         summary["fail_percentage"] = 100 - summary["pass_percentage"]
 
-        # Group test results
+        # Group test results for rendering
         grouped_tests = {}
         for entry in self.log_entries:
             group_name = entry.get("group_name", "Ungrouped")
@@ -150,18 +164,18 @@ class Logger:
                 "name": entry.get("test_name", "Unnamed Test"),
                 "status": entry["level"],
                 "details": entry.get("message", ""),
-                "info": entry.get("additional_info", "-"),
+                "info": entry.get("additional_info", "N/A"),
             })
             if entry["level"] == "FAIL":
                 grouped_tests[group_name]["status"] = "FAIL"
 
-        # Add group summaries
+        # Add summaries for groups
         for group in grouped_tests.values():
             pass_count = len([t for t in group["tests"] if t["status"] == "PASS"])
             fail_count = len([t for t in group["tests"] if t["status"] == "FAIL"])
             group["summary"] = f"{pass_count} PASS, {fail_count} FAIL"
 
-        # Render HTML report
+        # Step 3: Render the main HTML report
         rendered_html = self.template.render(
             total_tests=summary["total_tests"],
             passed=summary["passed"],
@@ -171,7 +185,7 @@ class Logger:
             test_results=list(grouped_tests.values()),
         )
 
-        # Write main HTML report
+        # Write the main HTML report
         with open(self.html_file, "w", encoding="utf-8") as f:
             f.write(rendered_html)
         print(f"HTML report successfully written to: {self.html_file}")
@@ -181,43 +195,49 @@ class Logger:
         shutil.copy(self.css_file, css_target_path)
         print(f"CSS file successfully copied to: {css_target_path}")
 
-        # Generate subpages for test groups
+
+
+    def generate_test_code_pages(self, test_groups, html_dir):
+        """
+        Generates HTML subpages for test code.
+        :param test_groups: List of test groups.
+        :param html_dir: Directory for the generated HTML pages.
+        """
         for group in test_groups:
             group_name = group.name
-            group_file = os.path.join(html_dir, f"{group_name.replace(' ', '_').lower()}_code.html")
+            group_file_name = f"{group_name.replace(' ', '_').lower()}_tests.html"
+            group_file = os.path.join(html_dir, group_file_name)
 
-            # Collect test code for the group
-            group_code = []
+            print(f"[DEBUG] Processing group: {group_name}, File: {group_file_name}")
+
+            test_code_entries = []
             for test in group.tests:
-                try:
-                    # Extract the source code of the specific test function
-                    source_lines, _ = inspect.getsourcelines(test.test_func)
-                    group_code.append({
-                        "test_name": test.name,
-                        "code": "".join(source_lines)
-                    })
-                except Exception as e:
-                    print(f"Failed to load code for test {test.name}: {e}")
-                    continue
+                if test.original_func:
+                    try:
+                        test_file = inspect.getsourcefile(test.original_func)
+                        test_code = inspect.getsource(test.original_func)
+                        test_id = test.name.replace(" ", "_").lower()
+                        test.info = f"{group_file_name}#{test_id}"  # Generujemy link bezpośrednio
+                        test_code_entries.append({
+                            "test_name": test.name,
+                            "code": test_code,
+                            "id": test_id,
+                        })
+                        print(f"[DEBUG] Test '{test.name}' found in file: {test_file}")
+                    except Exception as e:
+                        print(f"[DEBUG] Failed to extract code for test '{test.name}': {e}")
+                else:
+                    print(f"[DEBUG] Test '{test.name}' has no associated function.")
 
-            # Render group test code page
-            group_template = self.env.get_template("test_code_template.html")
-            rendered_group_html = group_template.render(
+            # Render subpage for test group
+            rendered_html = self.env.get_template("test_code_template.html").render(
                 group_name=group_name,
-                tests=[
-                    {
-                        "test_name": test.name,
-                        "code": "".join(source_lines),
-                        "id": test.name.replace(" ", "_").lower()  # Generate unique ID for each test
-                    }
-                    for test in group.tests
-                ]
+                tests=test_code_entries
             )
 
-            # Write group test code page
             with open(group_file, "w", encoding="utf-8") as f:
-                f.write(rendered_group_html)
-            print(f"Generated test code page for group '{group_name}': {group_file}")
+                f.write(rendered_html)
+            print(f"[DEBUG] Generated test code page for group '{group_name}': {group_file}")
 
 
 

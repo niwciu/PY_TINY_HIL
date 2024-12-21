@@ -1,3 +1,5 @@
+import os
+import inspect
 from core.test_framework import TestGroup, Test
 from core.assertions import set_test_context, clear_test_context
 
@@ -11,7 +13,15 @@ def create_test_group(group_name, setup_func, teardown_func, tests):
     :param tests: Lista testów do przypisania do grupy, w formie [(test_name, test_function), ...]
     :return: Obiekt TestGroup z dodanymi testami.
     """
-    group = TestGroup(group_name)
+    # Ustal plik źródłowy dla testów
+    if tests:
+        _, first_test_func = tests[0]
+        test_file = os.path.abspath(inspect.getsourcefile(first_test_func))
+    else:
+        test_file = None
+        print(f"[WARNING] No tests provided for group '{group_name}'. test_file will be None.")
+
+    group = TestGroup(group_name, test_file)
 
     # Opakowanie funkcji setup z dodaniem frameworka do kontekstu
     if setup_func:
@@ -42,6 +52,6 @@ def create_test_group(group_name, setup_func, teardown_func, tests):
             finally:
                 clear_test_context()
 
-        group.add_test(Test(test_name, wrapped_test))
+        group.add_test(Test(test_name, wrapped_test, test_func))
 
     return group

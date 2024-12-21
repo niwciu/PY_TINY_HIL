@@ -1,5 +1,5 @@
-import os
 import sys
+import os
 import importlib
 from core.test_framework import TestFramework, TestGroup
 from core.logger import Logger
@@ -7,12 +7,13 @@ from core.peripheral_manager import PeripheralManager
 from core.protocols import ModbusTRU
 from core.RPiPeripherals import RPiGPIO, RPiPWM, RPiUART, RPiI2C, RPiSPI
 from core.peripheral_config_loader import load_peripheral_configuration
+import RPi.GPIO as GPIO
 
 def load_test_groups(test_directory):
     """
-    Loads test groups from the specified directory.
-    :param test_directory: Directory containing test group runner files.
-    :return: List of TestGroup objects.
+    Dynamically loads test groups from a specified directory.
+    :param test_directory: Path to the directory containing test group runners.
+    :return: A list of test group objects.
     """
     test_groups = []
     for file_name in os.listdir(test_directory):
@@ -26,31 +27,31 @@ def load_test_groups(test_directory):
     return test_groups
 
 def main():
-    # Parse command-line arguments
+    # Parse arguments for log and HTML report
     log_file = None
     html_file = None
-    if len(sys.argv) > 2:
-        if '--log' in sys.argv:
-            log_index = sys.argv.index('--log')
-            log_file = sys.argv[log_index + 1] if log_index + 1 < len(sys.argv) else None
-        if '--html' in sys.argv:
-            html_index = sys.argv.index('--html')
-            html_file = sys.argv[html_index + 1] if html_index + 1 < len(sys.argv) else None
+    if '--log' in sys.argv:
+        log_index = sys.argv.index('--log')
+        log_file = sys.argv[log_index + 1] if log_index + 1 < len(sys.argv) else None
+    if '--html' in sys.argv:
+        html_index = sys.argv.index('--html')
+        html_file = sys.argv[html_index + 1] if html_index + 1 < len(sys.argv) else None
 
-    # Setup logger
+    # Initialize logger
     logger = Logger(log_file=log_file, html_file=html_file)
 
-    # Create PeripheralManager instance
+    # Initialize PeripheralManager
     peripheral_manager = PeripheralManager(devices={}, logger=logger)
     peripheral_manager.devices = load_peripheral_configuration()
+    print(f"Discovered peripherals: {peripheral_manager.devices}")
+
+    # Initialize TestFramework
+    test_framework = TestFramework(peripheral_manager, logger)
 
     # Load test groups dynamically
     test_directory = os.path.join(os.path.dirname(__file__), 'tests')
     test_groups = load_test_groups(test_directory)
     print(f"Discovered test groups: {test_groups}")
-
-    # Create TestFramework instance
-    test_framework = TestFramework(peripheral_manager, logger)
 
     # Add test groups to the framework
     for group in test_groups:
@@ -59,16 +60,17 @@ def main():
     try:
         # Run all tests
         test_framework.run_all_tests()
-
-        # Generate HTML report with test groups
-        if html_file:
-            logger.generate_html_report(test_groups=test_groups)
     except SystemExit as e:
-        # Handle test framework exit
+        # Handle test failures or early exits
         if html_file:
+            # Generate HTML report with test groups
             logger.generate_html_report(test_groups=test_groups)
         logger.log(f"[INFO] Test execution stopped with exit code {e.code}.")
         sys.exit(e.code)
+
+    # Generate HTML report if requested and not yet generated
+    if html_file and not logger.html_file:
+        logger.generate_html_report(test_groups=test_groups)
 
 if __name__ == "__main__":
     main()

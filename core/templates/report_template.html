@@ -181,17 +181,19 @@
                         <td>{{ test.name }}</td>
                         <td>{{ test.details }}</td>
                         <td>
-                            <a href="{{ group.id }}_code.html#{{ test.name.replace(' ', '_').lower() }}" class="test-link">
-                                Test Code →
-                            </a>
-                        </td>
-                        
+                            {% if test.additional_info and test.additional_info != "N/A" %}
+                                <a href="{{ test.additional_info }}">Test Code</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                            <p>Debug: {{ test.additional_info | default("N/A") }}</p>
+                        </td>                       
                     </tr>
                     {% endfor %}
                 </tbody>
                 {% endfor %}
             </tbody>
-        </table>
+        </table>        
     </div>
 </body>
 </html>
