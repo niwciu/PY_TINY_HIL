@@ -139,10 +139,10 @@ class TestGroup:
         """
         Uruchamia wszystkie testy w grupie.
         """
-        log_line = f"[RUNNING TEST GROUP] {self.name}"
-        framework.logger.log(log_line, to_console=True)
-        if framework.logger.log_file:
-            framework.logger.log(log_line, to_console=False, to_log_file=True)
+        # log_line = f"[INFO] Running Test Group:  {self.name}"
+        # framework.logger.log(log_line, to_console=True)
+        # if framework.logger.log_file:
+        #     framework.logger.log(log_line, to_console=False, to_log_file=True)
 
         # Uruchom setup grupy, jeśli istnieje
         if self.setup:

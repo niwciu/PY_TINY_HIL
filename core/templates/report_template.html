@@ -180,7 +180,12 @@
                         </td>
                         <td>{{ test.name }}</td>
                         <td>{{ test.details }}</td>
-                        <td>Test Code <span style="cursor: pointer;">👉</span></td>
+                        <td>
+                            <a href="{{ group.id }}_code.html#{{ test.name.replace(' ', '_').lower() }}" class="test-link">
+                                Test Code →
+                            </a>
+                        </td>
+                        
                     </tr>
                     {% endfor %}
                 </tbody>

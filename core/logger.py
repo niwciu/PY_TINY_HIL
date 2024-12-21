@@ -184,30 +184,42 @@ class Logger:
         # Generate subpages for test groups
         for group in test_groups:
             group_name = group.name
-            group_dir = os.path.join(html_dir, "test_groups")
-            os.makedirs(group_dir, exist_ok=True)
-            group_file = os.path.join(group_dir, f"{group_name.replace(' ', '_').lower()}.html")
+            group_file = os.path.join(html_dir, f"{group_name.replace(' ', '_').lower()}_code.html")
 
             # Collect test code for the group
             group_code = []
             for test in group.tests:
                 try:
-                    with open(inspect.getsourcefile(test.test_func), "r") as file:
-                        group_code.append({
-                            "test_name": test.name,
-                            "code": file.read()
-                        })
+                    # Extract the source code of the specific test function
+                    source_lines, _ = inspect.getsourcelines(test.test_func)
+                    group_code.append({
+                        "test_name": test.name,
+                        "code": "".join(source_lines)
+                    })
                 except Exception as e:
                     print(f"Failed to load code for test {test.name}: {e}")
                     continue
 
             # Render group test code page
-            rendered_group_html = self.group_template.render(group_name=group_name, tests=group_code)
+            group_template = self.env.get_template("test_code_template.html")
+            rendered_group_html = group_template.render(
+                group_name=group_name,
+                tests=[
+                    {
+                        "test_name": test.name,
+                        "code": "".join(source_lines),
+                        "id": test.name.replace(" ", "_").lower()  # Generate unique ID for each test
+                    }
+                    for test in group.tests
+                ]
+            )
 
             # Write group test code page
             with open(group_file, "w", encoding="utf-8") as f:
                 f.write(rendered_group_html)
             print(f"Generated test code page for group '{group_name}': {group_file}")
+
+
 
     def _extract_level(self, message):
         """

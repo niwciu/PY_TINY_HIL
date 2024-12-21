@@ -10,10 +10,10 @@
     <div class="container">
         <h1>Test Code for {{ group_name }}</h1>
         {% for test in tests %}
-        <div class="test-code">
+        <div class="test-code" id="{{ test.id }}">
             <h2>{{ test.test_name }}</h2>
             <pre>{{ test.code }}</pre>
-        </div>
+        </div>        
         {% endfor %}
     </div>
 </body>

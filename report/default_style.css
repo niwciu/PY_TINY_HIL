@@ -157,6 +157,17 @@ td.fail {
     display: none;
 }
 
+.test-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.test-link:hover {
+    text-decoration: underline;
+    color: #2980b9;
+}
+
 /* Fixed column widths */
 th:nth-child(1), td:nth-child(1) {
     width: 10%; /* Dopasowane do zawartości PASS/FAIL i symboli */
