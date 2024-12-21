@@ -1,3 +1,4 @@
+
 /* General styles for the body */
 body {
     font-family: Arial, sans-serif;
@@ -68,9 +69,9 @@ h1 {
 
 /* Chart container styles */
 .chart-container {
-    width: 100px;
-    height: 100px;
-    margin-left: auto;
+    width: 105px;
+    height: 105px;
+    margin: auto;
 }
 
 /* Filter buttons and search bar */
@@ -258,3 +259,238 @@ th:nth-child(4), td:nth-child(4) {
         width: 10%;
     }
 }
+
+/* General styles for the body */
+body.light-theme {
+    font-family: 'Roboto', sans-serif;
+    margin: 20px;
+    background-color: #f9f9f9;
+    color: #333333;
+    line-height: 1.6;
+}
+.light-theme h1 {
+    color: #222222;
+    text-align: center;
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+.light-theme .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* Summary section styles */
+.light-theme .summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 20px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+.light-theme .summary .item {
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+    text-align: center;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fafafa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.light-theme .summary .item:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+.light-theme .summary .item span {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #0073e6;
+}
+.light-theme .summary .item small {
+    display: block;
+    font-size: 14px;
+    color: #777777;
+}
+.light-theme .summary .item.pass {
+    border-top: 7px solid #28a745;
+}
+.light-theme .summary .item.fail {
+    border-top: 7px solid #dc3545;
+}
+.light-theme .summary .item.summ {
+    border-top: 7px solid #ffc107;
+}
+
+/* Chart container styles */
+.light-theme .chart-container {
+    width: 100px;
+    height: 100px;
+    margin-left: auto;
+}
+
+/* Filter buttons and search bar */
+.light-theme .filter-buttons, .search-container {
+    text-align: center;
+    margin: 20px 0;
+}
+.light-theme .filter-buttons button, .search-container input {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    background-color: #0073e6;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+}
+.light-theme .filter-buttons button:hover {
+    background-color: #005bb5;
+}
+.light-theme .search-container input {
+    width: 30px;
+    padding: 8x;
+    background-color: #ffffff;
+    color: #333333;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+}
+
+/* Table styles */
+.light-theme table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #dddddd;
+}
+.light-theme th, td {
+    padding: 5px;
+    text-align: center;
+    word-wrap: break-word;
+    border: 1px solid #dddddd;
+}
+.light-theme th {
+    background-color: #f1f1f1;
+    color: #333333;
+    padding: 10px;
+    font-weight: 600;
+}
+.light-theme td {
+    padding: 5px;
+    text-align: center;
+    color: #555555;
+}
+.light-theme td.pass {
+    color: #28a745;
+    font-weight: bold;
+}
+.light-theme td.fail {
+    color: #dc3545;
+    font-weight: bold;
+}
+.light-theme .group-header {
+    background: #e9ecef;
+    color: #333333;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 1px solid #dddddd;
+    border-radius: 4px;
+}
+.light-theme .group-header:hover {
+    background: #dfe3e8;
+}
+.light-theme .hidden {
+    display: none;
+}
+
+.light-theme .test-link {
+    color: #0056b3;
+    text-decoration: none;
+    font-weight: bold;
+}
+.light-theme .test-link:hover {
+    text-decoration: underline;
+    color: #0073e6;
+}
+
+/* Highlight.js integration for syntax highlighting */
+.light-theme pre code {
+    font-size: 1.1em;
+    line-height: 1.6;
+    background: #f8f9fa;
+    color: #343a40;
+    border-radius: 5px;
+    padding: 10px;
+    display: block;
+    overflow-x: auto;
+}
+
+/* Prism.js syntax highlighting customization */
+.light-theme pre code .hljs-keyword, .light-theme pre code .hljs-selector-tag {
+    color: #0056b3; /* Keywords and tags */
+    font-weight: bold;
+}
+.light-theme pre code .hljs-string, .light-theme pre code .hljs-title, .light-theme pre code .hljs-name {
+    color: #dc3545; /* Strings and titles */
+}
+.light-theme pre code .hljs-number, .light-theme pre code .hljs-literal {
+    color: #ffc107; /* Numbers and literals */
+}
+.light-theme pre code .hljs-comment {
+    color: #6c757d; /* Comments */
+    font-style: italic;
+}
+.light-theme pre code .hljs-attribute, .light-theme pre code .hljs-variable {
+    color: #0073e6; /* Attributes and variables */
+}
+.light-theme pre code .hljs-built_in, .light-theme pre code .hljs-class {
+    color: #28a745; /* Built-in objects and classes */
+}
+.light-theme pre code .hljs-meta {
+    color: #ffc107; /* Metadata */
+    font-style: italic;
+}
+.light-theme pre code .hljs-function {
+    color: #6f42c1; /* Functions */
+}
+.light-theme pre code .hljs-emphasis {
+    font-style: italic; /* Emphasized text */
+}
+.light-theme pre code .hljs-strong {
+    font-weight: bold; /* Strong text */
+}
+
+/* Test code styles */
+.light-theme .test-code {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.light-theme .test-code.highlight-temporary {
+    background-color: #fddede;
+    border-color: #f5c6cb;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.light-theme .test-code.highlight-persistent {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+.light-theme .test-code h2 {
+    font-size: 1.4em;
+    color: #333333;
+    margin-bottom: 15px;
+}
+
