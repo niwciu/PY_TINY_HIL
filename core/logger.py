@@ -127,8 +127,9 @@ class Logger:
         self.generate_test_code_pages(test_groups, html_dir)
 
         # Debugging updated log entries
-        print("[DEBUG] Updated log entries with test info:")
+        print("[DEBUG] Log Entries Before Grouping:")
         for entry in self.log_entries:
+            print(entry)
             for group in test_groups:
                 if group.name == entry.get("group_name"):
                     for test in group.tests:
@@ -150,42 +151,52 @@ class Logger:
 
         # Group test results for rendering
         grouped_tests = {}
+
+        # Debug log entries before grouping
+        print("[DEBUG] Log Entries Before Grouping:")
+        for entry in self.log_entries:
+            print(entry)
+
         for entry in self.log_entries:
             group_name = entry.get("group_name", "Ungrouped")
+            if not group_name:
+                print(f"[DEBUG] Skipping test: {entry} (no group_name)")
+                continue
+
             if group_name not in grouped_tests:
                 grouped_tests[group_name] = {
                     "id": group_name.replace(" ", "_").lower(),
                     "name": group_name,
                     "tests": [],
-                    "status": "PASS",
+                    "status": "PASS",  # Default to PASS until a FAIL is found
                     "summary": "",
                 }
-                grouped_tests[group_name]["tests"].append({
-                    "name": entry.get("test_name", "Unnamed Test"),
-                    "status": entry["level"],
-                    "details": entry.get("message", ""),
-                    "info": entry.get("additional_info", "N/A"),  # Powinien być poprawny link
-                })
+
+            grouped_tests[group_name]["tests"].append({
+                "name": entry.get("test_name", "Unnamed Test"),
+                "status": entry["level"],
+                "details": entry.get("message", ""),
+                "info": entry.get("additional_info", "N/A"),
+            })
+
             if entry["level"] == "FAIL":
                 grouped_tests[group_name]["status"] = "FAIL"
 
-        # Add summaries for groups and debug test results
+        # Debug grouped tests
+        print("[DEBUG] Grouped Tests After Grouping:")
+        for group_name, group_data in grouped_tests.items():
+            print(f"Group: {group_name}")
+            for test in group_data["tests"]:
+                print(f"  Test: {test['name']}, Status: {test['status']}, Info: {test['info']}")
+
+        # Add summaries for groups
         print("[DEBUG] Test Results Passed to Template:")
-
         for group in grouped_tests.values():
-            # Debug individual tests in the group
-            print(f"[DEBUG] Processing Group: {group['name']}")
-            for test in group["tests"]:
-                print(f"  [DEBUG] Test: {test['name']}, Status: {test['status']}, Info: {test['info']}")
-
-            # Calculate summary for the group
             pass_count = len([t for t in group["tests"] if t["status"] == "PASS"])
             fail_count = len([t for t in group["tests"] if t["status"] == "FAIL"])
-            total_count = pass_count + fail_count
             group["summary"] = f"{pass_count} PASS, {fail_count} FAIL"
-    
-            # Debug group summary
-            print(f"[DEBUG] Summary for Group '{group['name']}': {group['summary']} (Total: {total_count})")
+            print(f"[DEBUG] Summary for Group '{group['name']}': {group['summary']} (Total: {len(group['tests'])})")
+
 
 
         # Step 3: Render the main HTML report
