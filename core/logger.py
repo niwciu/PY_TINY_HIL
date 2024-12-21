@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import inspect
 from termcolor import colored
 from jinja2 import Environment, FileSystemLoader
 
@@ -31,6 +32,7 @@ class Logger:
             try:
                 self.env = Environment(loader=FileSystemLoader(template_path))
                 self.template = self.env.get_template('report_template.html')
+                self.group_template = self.env.get_template('test_code_template.html')
                 self.css_file = css_file
                 print(f"HTML template and CSS loaded successfully from {template_path}")
             except Exception as e:
@@ -61,7 +63,6 @@ class Logger:
     def _log_to_console(self, message):
         """
         Logs a message to the console with color highlighting.
-        :param message: The message to log.
         """
         message_with_color = re.sub(
             r'\[(PASS|FAIL|INFO|WARNING|ERROR)\]',
@@ -79,7 +80,6 @@ class Logger:
     def _log_to_file(self, message):
         """
         Logs a message to a log file.
-        :param message: The message to log.
         """
         if not self._file_initialized:
             self._initialize_log_file()
@@ -106,9 +106,9 @@ class Logger:
             log_file.write(self.log_buffer)
         self.log_buffer = ""
 
-    def generate_html_report(self):
+    def generate_html_report(self, test_groups=None):
         """
-        Generates an HTML report if an HTML file path is provided.
+        Generates an HTML report with optional subpages for test code.
         """
         if not self.html_file:
             print("No HTML file provided, skipping report generation.")
@@ -119,13 +119,19 @@ class Logger:
         if html_dir and not os.path.exists(html_dir):
             os.makedirs(html_dir, exist_ok=True)
 
+        if test_groups is None:
+            print("Error: No test groups provided to generate_html_report.")
+            return
+
         # Prepare summary
         summary = {
             "passed": len([entry for entry in self.log_entries if entry["level"] == "PASS"]),
             "failed": len([entry for entry in self.log_entries if entry["level"] == "FAIL"]),
         }
         summary["total_tests"] = summary["passed"] + summary["failed"]
-        summary["pass_percentage"] = (summary["passed"] / summary["total_tests"] * 100) if summary["total_tests"] > 0 else 0
+        summary["pass_percentage"] = (
+            (summary["passed"] / summary["total_tests"] * 100) if summary["total_tests"] > 0 else 0
+        )
         summary["fail_percentage"] = 100 - summary["pass_percentage"]
 
         # Group test results
@@ -155,17 +161,17 @@ class Logger:
             fail_count = len([t for t in group["tests"] if t["status"] == "FAIL"])
             group["summary"] = f"{pass_count} PASS, {fail_count} FAIL"
 
-        # Render HTML
+        # Render HTML report
         rendered_html = self.template.render(
             total_tests=summary["total_tests"],
             passed=summary["passed"],
             failed=summary["failed"],
             pass_percentage=summary["pass_percentage"],
             fail_percentage=summary["fail_percentage"],
-            test_results=list(grouped_tests.values())
+            test_results=list(grouped_tests.values()),
         )
 
-        # Write HTML to file
+        # Write main HTML report
         with open(self.html_file, "w", encoding="utf-8") as f:
             f.write(rendered_html)
         print(f"HTML report successfully written to: {self.html_file}")
@@ -175,14 +181,37 @@ class Logger:
         shutil.copy(self.css_file, css_target_path)
         print(f"CSS file successfully copied to: {css_target_path}")
 
+        # Generate subpages for test groups
+        for group in test_groups:
+            group_name = group.name
+            group_dir = os.path.join(html_dir, "test_groups")
+            os.makedirs(group_dir, exist_ok=True)
+            group_file = os.path.join(group_dir, f"{group_name.replace(' ', '_').lower()}.html")
 
+            # Collect test code for the group
+            group_code = []
+            for test in group.tests:
+                try:
+                    with open(inspect.getsourcefile(test.test_func), "r") as file:
+                        group_code.append({
+                            "test_name": test.name,
+                            "code": file.read()
+                        })
+                except Exception as e:
+                    print(f"Failed to load code for test {test.name}: {e}")
+                    continue
 
+            # Render group test code page
+            rendered_group_html = self.group_template.render(group_name=group_name, tests=group_code)
+
+            # Write group test code page
+            with open(group_file, "w", encoding="utf-8") as f:
+                f.write(rendered_group_html)
+            print(f"Generated test code page for group '{group_name}': {group_file}")
 
     def _extract_level(self, message):
         """
         Extracts the log level from a message.
-        :param message: The message to analyze.
-        :return: The extracted log level or "INFO" if not found.
         """
         match = re.search(r'\[(PASS|FAIL|INFO|WARNING|ERROR)\]', message)
         return match.group(1) if match else "INFO"
