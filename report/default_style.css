@@ -57,10 +57,13 @@ h1 {
     color: #aaaaaa;
 }
 .summary .item.pass {
-    border-top: 5px solid #4caf50;
+    border-top: 7px solid #4caf50;
 }
 .summary .item.fail {
-    border-top: 5px solid #f44336;
+    border-top: 7px solid #f44336;
+}
+.summary .item.summ {
+    border-top: 7px solid #9cdcfe;
 }
 
 /* Chart container styles */
@@ -112,7 +115,7 @@ th, td {
 }
 th {
     background-color: #3c3c3c;
-    color: rgb(255, 226, 111);
+    color: #9cdcfe; /* rgb(255, 226, 111); */
     padding: 10px;
 }
 td {
