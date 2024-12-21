@@ -101,7 +101,7 @@
             new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
-                    labels: ['PASS', 'FAIL'],
+                    // labels: ['PASS', 'FAIL'],
                     datasets: [{
                         data: [4, 2],
                         backgroundColor: ['#27ae60', '#e74c3c'],
@@ -109,11 +109,11 @@
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        }
-                    }
+                    // plugins: {
+                    //     legend: {
+                    //         position: 'right',
+                    //     }
+                    // }
                 }
             });
         }
@@ -131,20 +131,23 @@
             </div>
             <div class="item pass">
                 <span>4</span>
-                <small>PASS</small>
+                <small>PASS 66.7%</small>
             </div>
             <div class="item fail">
                 <span>2</span>
-                <small>FAIL</small>
+                <small>FAIL 33.3%</small>
+            </div>
+            <div class="chart-container">
+                <canvas id="testChart"></canvas>
             </div>
         </div>
-        <div class="chart-container">
+        <!-- <div class="chart-container">
             <canvas id="testChart"></canvas>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar progress-pass" style="width: 66.66666666666666%;">66.66666666666666% PASS</div>
-            <div class="progress-bar progress-fail" style="width: 33.33333333333334%;">33.33333333333334% FAIL</div>
-        </div>
+        </div> -->
+        <!-- <div class="progress-bar-container">
+            <div class="progress-bar progress-pass" style="width: 66.7%;">66.7% PASS</div>
+            <div class="progress-bar progress-fail" style="width: 33.3%;">33.3% FAIL</div>
+        </div> -->
         <div class="search-container">
             <input type="text" id="searchInput" onkeyup="searchTests()" placeholder="Search for tests..." />
         </div>

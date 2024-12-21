@@ -4,14 +4,19 @@ body {
     margin: 20px;
     background-color: #f9f9f9;
     color: #333;
+    line-height: 1.6;
 }
 h1 {
     color: #2c3e50;
     text-align: center;
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 20px;
 }
 .container {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 10px;
 }
 
 /* Summary section styles */
@@ -24,6 +29,7 @@ h1 {
     background: #ecf0f1;
     border-radius: 8px;
     margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 .summary .item {
     flex: 1;
@@ -34,6 +40,10 @@ h1 {
     border-radius: 8px;
     background: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+.summary .item:hover {
+    transform: translateY(-5px);
 }
 .summary .item span {
     display: block;
@@ -55,13 +65,14 @@ h1 {
 
 /* Chart container styles */
 .chart-container {
-    width: 300px;
-    height: 300px;
-    margin: auto;
+    width: 100px;
+    height: 100px;
+    margin-left: auto;
+    
 }
 
 /* Progress bar styles */
-.progress-bar-container {
+/* .progress-bar-container {
     width: 100%;
     max-width: 600px;
     margin: 20px auto;
@@ -82,7 +93,7 @@ h1 {
 }
 .progress-fail {
     background-color: #e74c3c;
-}
+} */
 
 /* Filter buttons and search bar */
 .filter-buttons, .search-container {
@@ -109,17 +120,17 @@ h1 {
 /* Table styles */
 table {
     width: 100%;
-    border-collapse: collapse; /* Przywraca linie między wierszami */
+    border-collapse: collapse;
     margin-top: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    table-layout: fixed; /* Ustawia stały układ tabeli */
-    border: 1px solid #ddd; /* Ramka dla całej tabeli */
+    table-layout: fixed;
+    border: 1px solid #ddd;
 }
 th, td {
-    padding: 5px; /* Zmniejszona wysokość wiersza */
+    padding: 5px;
     text-align: center;
-    word-wrap: break-word; /* Zawijanie tekstu w komórkach */
-    border: 1px solid #ddd; /* Linie między komórkami */
+    word-wrap: break-word;
+    border: 1px solid #ddd;
 }
 th {
     background-color: #34495e;
@@ -139,8 +150,8 @@ td.fail {
     font-weight: bold;
 }
 .group-header {
-    background: #eaf6ff; /* Bardzo jasny pastelowy niebieski */
-    color: #333; 
+    background: #eaf6ff;
+    color: #333;
     text-align: center;
     padding: 10px;
     cursor: pointer;
@@ -148,9 +159,8 @@ td.fail {
     border-bottom: 1px solid #d4ebf7;
     border-radius: 4px;
 }
-
 .group-header:hover {
-    background: #dff0fc; /* Subtelnie ciemniejszy odcień przy najechaniu */
+    background: #dff0fc;
 }
 
 .hidden {
@@ -162,24 +172,58 @@ td.fail {
     text-decoration: none;
     font-weight: bold;
 }
-
 .test-link:hover {
     text-decoration: underline;
     color: #2980b9;
 }
 
+/* Highlight.js integration for syntax highlighting */
+pre code {
+    font-size: 1.2em;
+    line-height: 1.5;
+    background: #f8f8f8;
+    border-radius: 5px;
+    padding: 10px;
+    display: block;
+    overflow-x: auto;
+}
+
+/* Test code styles */
+.test-code {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.test-code.highlight-temporary {
+    background-color: #ffdede;
+    border-color: #ff5e5e;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.test-code.highlight-persistent {
+    background-color: #eaf2ff;
+    border-color: #3498db;
+}
+.test-code h2 {
+    font-size: 1.2em;
+    color: #34495e;
+    margin-bottom: 10px;
+}
+
 /* Fixed column widths */
 th:nth-child(1), td:nth-child(1) {
-    width: 10%; /* Dopasowane do zawartości PASS/FAIL i symboli */
+    width: 10%;
 }
 th:nth-child(2), td:nth-child(2) {
-    width: 45%; /* Więcej miejsca dla grup/testów */
+    width: 45%;
 }
 th:nth-child(3), td:nth-child(3) {
-    width: 35%; /* Szczegóły */
+    width: 35%;
 }
 th:nth-child(4), td:nth-child(4) {
-    width: 10%; /* Dodatkowe informacje */
+    width: 10%;
 }
 
 /* Responsywność */

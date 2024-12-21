@@ -145,9 +145,9 @@ class Logger:
         }
         summary["total_tests"] = summary["passed"] + summary["failed"]
         summary["pass_percentage"] = (
-            (summary["passed"] / summary["total_tests"] * 100) if summary["total_tests"] > 0 else 0
+            round((summary["passed"] / summary["total_tests"] * 100),1) if summary["total_tests"] > 0 else 0
         )
-        summary["fail_percentage"] = 100 - summary["pass_percentage"]
+        summary["fail_percentage"] = round(100 - summary["pass_percentage"],1)
 
         # Group test results for rendering
         grouped_tests = {}

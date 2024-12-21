@@ -4,40 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Code for {{ group_name }}</title>
-    <link rel="stylesheet" href="../default_style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.css">
-    <style>
-        .test-code {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f8f8f8;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .test-code.highlight-temporary {
-            background-color: #e74c3c; /* Czerwony kontrastowy */
-            border-color: #c0392b;
-            color: white;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-        .test-code.highlight-persistent {
-            background-color: #eaf2ff; /* Pastelowy niebieski */
-            border-color: #3498db;
-        }
-        .test-code h2 {
-            font-size: 1.2em;
-            color: #34495e;
-            margin-bottom: 10px;
-        }
-        pre {
-            background-color: #f8f8f8;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.js"></script>
+    <link rel="stylesheet" href="default_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script>
         function highlightSection(sectionId) {
             // Remove persistent highlight from all sections
@@ -67,6 +36,11 @@
             if (hash) {
                 highlightSection(hash);
             }
+
+            // Initialize Highlight.js
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
         });
     </script>
 </head>

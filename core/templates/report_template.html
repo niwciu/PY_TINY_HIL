@@ -101,7 +101,7 @@
             new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
-                    labels: ['PASS', 'FAIL'],
+                    // labels: ['PASS', 'FAIL'],
                     datasets: [{
                         data: [{{ passed }}, {{ failed }}],
                         backgroundColor: ['#27ae60', '#e74c3c'],
@@ -109,11 +109,11 @@
                 },
                 options: {
                     responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        }
-                    }
+                    // plugins: {
+                    //     legend: {
+                    //         position: 'right',
+                    //     }
+                    // }
                 }
             });
         }
@@ -131,20 +131,23 @@
             </div>
             <div class="item pass">
                 <span>{{ passed }}</span>
-                <small>PASS</small>
+                <small>PASS {{ pass_percentage }}%</small>
             </div>
             <div class="item fail">
                 <span>{{ failed }}</span>
-                <small>FAIL</small>
+                <small>FAIL {{ fail_percentage }}%</small>
+            </div>
+            <div class="chart-container">
+                <canvas id="testChart"></canvas>
             </div>
         </div>
-        <div class="chart-container">
+        <!-- <div class="chart-container">
             <canvas id="testChart"></canvas>
-        </div>
-        <div class="progress-bar-container">
+        </div> -->
+        <!-- <div class="progress-bar-container">
             <div class="progress-bar progress-pass" style="width: {{ pass_percentage }}%;">{{ pass_percentage }}% PASS</div>
             <div class="progress-bar progress-fail" style="width: {{ fail_percentage }}%;">{{ fail_percentage }}% FAIL</div>
-        </div>
+        </div> -->
         <div class="search-container">
             <input type="text" id="searchInput" onkeyup="searchTests()" placeholder="Search for tests..." />
         </div>
