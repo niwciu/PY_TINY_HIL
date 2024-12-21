@@ -181,13 +181,13 @@
                         <td>{{ test.name }}</td>
                         <td>{{ test.details }}</td>
                         <td>
-                            {% if test.additional_info and test.additional_info != "N/A" %}
-                                <a href="{{ test.additional_info }}">Test Code</a>
+                            {% if test.info and test.info != "N/A" %}
+                                <a href="{{ test.info }}">Test Code</a>
                             {% else %}
                                 N/A
                             {% endif %}
-                            <p>Debug: {{ test.additional_info | default("N/A") }}</p>
-                        </td>                       
+                            <p>Debug: {{ test.info | default("N/A") }}</p>
+                        </td>                                                                    
                     </tr>
                     {% endfor %}
                 </tbody>

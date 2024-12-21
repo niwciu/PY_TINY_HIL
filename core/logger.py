@@ -160,20 +160,33 @@ class Logger:
                     "status": "PASS",
                     "summary": "",
                 }
-            grouped_tests[group_name]["tests"].append({
-                "name": entry.get("test_name", "Unnamed Test"),
-                "status": entry["level"],
-                "details": entry.get("message", ""),
-                "info": entry.get("additional_info", "N/A"),
-            })
+                grouped_tests[group_name]["tests"].append({
+                    "name": entry.get("test_name", "Unnamed Test"),
+                    "status": entry["level"],
+                    "details": entry.get("message", ""),
+                    "info": entry.get("additional_info", "N/A"),  # Powinien być poprawny link
+                })
             if entry["level"] == "FAIL":
                 grouped_tests[group_name]["status"] = "FAIL"
 
-        # Add summaries for groups
+        # Add summaries for groups and debug test results
+        print("[DEBUG] Test Results Passed to Template:")
+
         for group in grouped_tests.values():
+            # Debug individual tests in the group
+            print(f"[DEBUG] Processing Group: {group['name']}")
+            for test in group["tests"]:
+                print(f"  [DEBUG] Test: {test['name']}, Status: {test['status']}, Info: {test['info']}")
+
+            # Calculate summary for the group
             pass_count = len([t for t in group["tests"] if t["status"] == "PASS"])
             fail_count = len([t for t in group["tests"] if t["status"] == "FAIL"])
+            total_count = pass_count + fail_count
             group["summary"] = f"{pass_count} PASS, {fail_count} FAIL"
+    
+            # Debug group summary
+            print(f"[DEBUG] Summary for Group '{group['name']}': {group['summary']} (Total: {total_count})")
+
 
         # Step 3: Render the main HTML report
         rendered_html = self.template.render(
@@ -182,8 +195,9 @@ class Logger:
             failed=summary["failed"],
             pass_percentage=summary["pass_percentage"],
             fail_percentage=summary["fail_percentage"],
-            test_results=list(grouped_tests.values()),
+            test_results=list(grouped_tests.values()),  # Przekazanie grouped_tests
         )
+
 
         # Write the main HTML report
         with open(self.html_file, "w", encoding="utf-8") as f:
