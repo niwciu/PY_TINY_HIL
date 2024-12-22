@@ -7,59 +7,62 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Centralized initialization logic
+        function initializePage() {
+            applySavedTheme();
+            generatePieChart();
+        }
+        function applySavedTheme() {
+            const savedTheme = sessionStorage.getItem('selectedTheme');
+            if (savedTheme) {
+                document.body.className = savedTheme;
+                const themeSelect = document.getElementById('theme-select');
+                if (themeSelect) {
+                    themeSelect.value = savedTheme;
+                }
+            }
+        }
+
+        function changeTheme() {
+            const selectedTheme = document.getElementById('theme-select').value;
+            document.body.className = selectedTheme;
+            sessionStorage.setItem('selectedTheme', selectedTheme);
+        }
+
+        // Group and test management functions
         function toggleGroup(groupId) {
             const groupContent = document.getElementById(groupId);
             groupContent.classList.toggle('hidden');
         }
-    
+
         function toggleAllGroups() {
             const groupContents = document.querySelectorAll('.group-content');
             const toggleButton = document.getElementById('toggleButton');
             const isHidden = toggleButton.innerText === 'Show All';
-    
-            // Resetuje filtrowanie: pokazuje wszystkie wiersze i grupy
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                row.style.display = ''; // Pokazuje wszystkie wiersze
+
+            document.querySelectorAll('tbody tr').forEach(row => {
+                row.style.display = ''; // Reset row visibility
             });
-    
+
             groupContents.forEach(groupContent => {
-                if (isHidden) {
-                    groupContent.classList.remove('hidden'); // Rozwiń grupy
-                } else {
-                    groupContent.classList.add('hidden'); // Zwiń grupy
-                }
+                groupContent.classList.toggle('hidden', !isHidden);
             });
-    
-            // Resetuje filtr na "ALL"
-            document.querySelectorAll('.group-header').forEach(header => {
-                header.style.display = ''; // Pokaż wszystkie grupy
-            });
-    
-            toggleButton.innerText = isHidden ? 'Hide All' : 'Show All'; // Zmień tekst przycisku
+
+            toggleButton.innerText = isHidden ? 'Hide All' : 'Show All';
         }
-    
+
         function filterResults(status) {
             const rows = document.querySelectorAll('tbody tr');
             const groups = document.querySelectorAll('.group-header');
             const groupContents = document.querySelectorAll('.group-content');
             const toggleButton = document.getElementById('toggleButton');
-    
-            // Ustaw przycisk na "Show All" jako domyślny stan
+
             toggleButton.innerText = 'Show All';
-    
+
             rows.forEach(row => {
-                if (row.classList.contains('group-header')) {
-                    row.style.display = '';
-                } else if (status === 'ALL') {
-                    row.style.display = '';
-                } else if (row.classList.contains(status.toLowerCase())) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (status === 'ALL' || row.classList.contains(status.toLowerCase())) ? '' : 'none';
             });
-    
+
             groups.forEach((group, index) => {
                 const groupContent = groupContents[index];
                 const visibleTests = Array.from(groupContent.children).some(
@@ -67,26 +70,26 @@
                 );
                 group.style.display = visibleTests ? '' : 'none';
                 if (status !== 'ALL' && visibleTests) {
-                    groupContent.classList.remove('hidden'); // Rozwiń grupy z widocznymi testami
+                    groupContent.classList.remove('hidden');
                 }
             });
         }
-    
+
         function searchTests() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const rows = document.querySelectorAll('tbody tr');
             const groups = document.querySelectorAll('.group-header');
             const groupContents = document.querySelectorAll('.group-content');
-    
+
             rows.forEach(row => {
                 const text = row.innerText.toLowerCase();
                 row.style.display = text.includes(input) ? '' : 'none';
-    
+
                 if (row.classList.contains('group-header')) {
                     row.style.display = '';
                 }
             });
-    
+
             groups.forEach((group, index) => {
                 const groupContent = groupContents[index];
                 const visibleTests = Array.from(groupContent.children).some(
@@ -95,35 +98,28 @@
                 group.style.display = visibleTests ? '' : 'none';
             });
         }
-    
+
+        // Chart generation
         function generatePieChart() {
             const ctxPie = document.getElementById('testChart').getContext('2d');
             new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
-                    // labels: ['PASS', 'FAIL'],
                     datasets: [{
                         data: [{{ passed }}, {{ failed }}],
                         backgroundColor: ['#27ae60', '#e74c3c'],
                     }]
                 },
                 options: {
-                    responsive: true,
-                    // plugins: {
-                    //     legend: {
-                    //         position: 'right',
-                    //     }
-                    // }
+                    responsive: true
                 }
             });
         }
 
-        function changeTheme() {
-            const selectedTheme = document.getElementById('theme-select').value;
-            document.body.className = selectedTheme; // Dynamicznie zmienia klasę body
-        }
-        document.addEventListener('DOMContentLoaded', generatePieChart);
-    </script>      
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', initializePage);
+
+    </script>
 </head>
 <body>
     <div class="theme-switcher">
@@ -150,15 +146,8 @@
             </div>
             <div class="chart-container">
                 <canvas id="testChart"></canvas>
-            </div>          
+            </div>
         </div>
-        <!-- <div class="chart-container">
-            <canvas id="testChart"></canvas>
-        </div> -->
-        <!-- <div class="progress-bar-container">
-            <div class="progress-bar progress-pass" style="width: {{ pass_percentage }}%;">{{ pass_percentage }}% PASS</div>
-            <div class="progress-bar progress-fail" style="width: {{ fail_percentage }}%;">{{ fail_percentage }}% FAIL</div>
-        </div> -->
         <div class="search-container">
             <input type="text" id="searchInput" onkeyup="searchTests()" placeholder="Search for tests..." />
         </div>
@@ -206,7 +195,7 @@
                 </tbody>
                 {% endfor %}
             </tbody>
-        </table>        
+        </table>
     </div>
 </body>
 </html>
